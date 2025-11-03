@@ -1,0 +1,290 @@
+-- Flattened Access History Views for Security Monitoring
+-- These views flatten the complex ARRAY columns from ACCESS_HISTORY
+-- Use these for detailed object-level access tracking
+
+USE ROLE cortex_role;
+USE SNOWFLAKE_INTELLIGENCE.TOOLS;
+
+-- =====================================================
+-- 1. DIRECT OBJECTS ACCESSED (What was directly queried?)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_DIRECT_OBJECTS_VW AS
+SELECT 
+    ah.QUERY_ID,
+    ah.QUERY_START_TIME,
+    ah.USER_NAME,
+    obj.value:objectId::NUMBER AS OBJECT_ID,
+    obj.value:objectName::STRING AS OBJECT_NAME,
+    obj.value:objectDomain::STRING AS OBJECT_TYPE,
+    col.value:columnName::STRING AS COLUMN_NAME
+FROM SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY ah,
+     LATERAL FLATTEN(input => ah.DIRECT_OBJECTS_ACCESSED) obj,
+     LATERAL FLATTEN(input => obj.value:columns, OUTER => TRUE) col
+WHERE ah.QUERY_START_TIME >= DATEADD(day, -90, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_DIRECT_OBJECTS_VW IS 
+'Flattened view showing objects directly accessed in queries. One row per object per query.';
+
+-- =====================================================
+-- 2. BASE OBJECTS ACCESSED (What base tables were accessed through views?)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_BASE_OBJECTS_VW AS
+SELECT 
+    ah.QUERY_ID,
+    ah.QUERY_START_TIME,
+    ah.USER_NAME,
+    obj.value:objectId::NUMBER AS BASE_OBJECT_ID,
+    obj.value:objectName::STRING AS BASE_OBJECT_NAME,
+    obj.value:objectDomain::STRING AS BASE_OBJECT_TYPE,
+    col.value:columnName::STRING AS COLUMN_NAME
+FROM SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY ah,
+     LATERAL FLATTEN(input => ah.BASE_OBJECTS_ACCESSED) obj,
+     LATERAL FLATTEN(input => obj.value:columns, OUTER => TRUE) col
+WHERE ah.QUERY_START_TIME >= DATEADD(day, -90, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_BASE_OBJECTS_VW IS 
+'Flattened view showing base tables accessed (including through views). One row per base object per query.';
+
+-- =====================================================
+-- 3. OBJECTS MODIFIED (What was changed?)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_OBJECTS_MODIFIED_VW AS
+SELECT 
+    ah.QUERY_ID,
+    ah.QUERY_START_TIME,
+    ah.USER_NAME,
+    obj.value:objectId::NUMBER AS MODIFIED_OBJECT_ID,
+    obj.value:objectName::STRING AS MODIFIED_OBJECT_NAME,
+    obj.value:objectDomain::STRING AS MODIFIED_OBJECT_TYPE,
+    col.value:columnName::STRING AS MODIFIED_COLUMN_NAME
+FROM SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY ah,
+     LATERAL FLATTEN(input => ah.OBJECTS_MODIFIED) obj,
+     LATERAL FLATTEN(input => obj.value:columns, OUTER => TRUE) col
+WHERE ah.QUERY_START_TIME >= DATEADD(day, -90, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_OBJECTS_MODIFIED_VW IS 
+'Flattened view showing objects modified by queries. One row per modified object per query.';
+
+-- =====================================================
+-- 4. POLICIES REFERENCED (What security policies were applied?)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_POLICIES_APPLIED_VW AS
+SELECT 
+    ah.QUERY_ID,
+    ah.QUERY_START_TIME,
+    ah.USER_NAME,
+    pol.value:policyId::NUMBER AS POLICY_ID,
+    pol.value:policyName::STRING AS POLICY_NAME,
+    pol.value:policyKind::STRING AS POLICY_KIND,
+    pol.value:policyStatus::STRING AS POLICY_STATUS,
+    pol.value:refColumnName::STRING AS PROTECTED_COLUMN,
+    pol.value:refEntityName::STRING AS PROTECTED_OBJECT
+FROM SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY ah,
+     LATERAL FLATTEN(input => ah.POLICIES_REFERENCED) pol
+WHERE ah.QUERY_START_TIME >= DATEADD(day, -90, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_POLICIES_APPLIED_VW IS 
+'Flattened view showing security policies applied during query execution. One row per policy per query.';
+
+-- =====================================================
+-- 5. SECURITY SUMMARY VIEW - Sensitive Table Access
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.SENSITIVE_TABLE_ACCESS_VW AS
+SELECT 
+    base.QUERY_START_TIME,
+    base.USER_NAME,
+    base.BASE_OBJECT_NAME AS TABLE_ACCESSED,
+    base.COLUMN_NAME,
+    qh.QUERY_TEXT,
+    qh.EXECUTION_STATUS,
+    qh.ROWS_PRODUCED,
+    pol.POLICY_NAME,
+    pol.POLICY_KIND
+FROM SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_BASE_OBJECTS_VW base
+LEFT JOIN SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY qh 
+    ON base.QUERY_ID = qh.QUERY_ID
+LEFT JOIN SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_POLICIES_APPLIED_VW pol
+    ON base.QUERY_ID = pol.QUERY_ID 
+    AND base.COLUMN_NAME = pol.PROTECTED_COLUMN
+WHERE base.BASE_OBJECT_NAME ILIKE ANY ('%CUSTOMER%', '%USER%', '%EMPLOYEE%', '%PAYMENT%', '%SSN%', '%CREDIT_CARD%')
+ORDER BY base.QUERY_START_TIME DESC;
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.SENSITIVE_TABLE_ACCESS_VW IS 
+'Security-focused view showing access to potentially sensitive tables with policy enforcement details.';
+
+-- =====================================================
+-- 6. LOGIN ACTIVITY SNAPSHOT (Last 90 days)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.LOGIN_ACTIVITY_VW AS
+SELECT
+    EVENT_TIMESTAMP,
+    USER_NAME,
+    CLIENT_IP,
+    REPORTED_CLIENT_TYPE,
+    REPORTED_CLIENT_VERSION,
+    FIRST_AUTHENTICATION_FACTOR,
+    SECOND_AUTHENTICATION_FACTOR,
+    IS_SUCCESS,
+    ERROR_CODE,
+    ERROR_MESSAGE
+FROM SNOWFLAKE.ACCOUNT_USAGE.LOGIN_HISTORY
+WHERE EVENT_TIMESTAMP >= DATEADD(day, -90, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.LOGIN_ACTIVITY_VW IS
+'Latest login activity including authentication factors and outcomes.';
+
+-- =====================================================
+-- 7. SESSION ACTIVITY SNAPSHOT (Last 90 days)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.SESSION_ACTIVITY_VW AS
+SELECT
+    SESSION_ID,
+    CREATED_ON,
+    USER_NAME,
+    AUTHENTICATION_METHOD,
+    LOGIN_EVENT_ID,
+    CLIENT_APPLICATION_VERSION,
+    CLIENT_APPLICATION_ID,
+    CLIENT_ENVIRONMENT,
+    CLIENT_BUILD_ID,
+    CLIENT_VERSION,
+    CLOSED_REASON
+FROM SNOWFLAKE.ACCOUNT_USAGE.SESSIONS
+WHERE CREATED_ON >= DATEADD(day, -90, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.SESSION_ACTIVITY_VW IS
+'Session metadata including authentication method, client details, and closure reason.';
+
+-- =====================================================
+-- 8. STAGE INVENTORY SNAPSHOT
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.STAGE_INVENTORY_VW AS
+SELECT
+    STAGE_NAME,
+    STAGE_SCHEMA,
+    STAGE_CATALOG,
+    STAGE_URL,
+    STAGE_TYPE,
+    STAGE_REGION,
+    STORAGE_INTEGRATION,
+    STAGE_OWNER,
+    CREATED,
+    LAST_ALTERED,
+    DELETED
+FROM SNOWFLAKE.ACCOUNT_USAGE.STAGES
+WHERE STAGE_NAME IS NOT NULL;
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.STAGE_INVENTORY_VW IS
+'Inventory of stages with integration details and lifecycle timestamps.';
+
+-- =====================================================
+-- 9. AUTOMATIC CLUSTERING ACTIVITY SNAPSHOT (Last 90 days)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.CLUSTERING_ACTIVITY_VW AS
+SELECT
+    TABLE_NAME,
+    SCHEMA_NAME,
+    DATABASE_NAME,
+    START_TIME,
+    END_TIME,
+    CREDITS_USED,
+    NUM_BYTES_RECLUSTERED,
+    NUM_ROWS_RECLUSTERED
+FROM SNOWFLAKE.ACCOUNT_USAGE.AUTOMATIC_CLUSTERING_HISTORY
+WHERE START_TIME >= DATEADD(day, -90, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.CLUSTERING_ACTIVITY_VW IS
+'Automatic clustering activity with credits, bytes, and rows reclustered.';
+
+-- =====================================================
+-- 10. ROLE INVENTORY SNAPSHOT
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ROLE_INVENTORY_VW AS
+SELECT
+    NAME,
+    COMMENT,
+    OWNER,
+    ROLE_TYPE,
+    ROLE_DATABASE_NAME,
+    CREATED_ON,
+    DELETED_ON
+FROM SNOWFLAKE.ACCOUNT_USAGE.ROLES
+WHERE NAME IS NOT NULL;
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ROLE_INVENTORY_VW IS
+'Current roles including ownership, database scope, and lifecycle timestamps.';
+
+-- =====================================================
+-- 11. TASK ACTIVITY SNAPSHOT (Last 90 days)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.TASK_ACTIVITY_VW AS
+SELECT
+    NAME,
+    DATABASE_NAME,
+    SCHEMA_NAME,
+    STATE,
+    SCHEDULED_TIME,
+    COMPLETED_TIME,
+    ERROR_CODE,
+    ERROR_MESSAGE
+FROM SNOWFLAKE.ACCOUNT_USAGE.TASK_HISTORY
+WHERE SCHEDULED_TIME >= DATEADD(day, -90, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.TASK_ACTIVITY_VW IS
+'Task runs with schedule, execution status, and error diagnostics.';
+
+-- =====================================================
+-- 12. WAREHOUSE METERING SNAPSHOT (Last 30 days)
+-- =====================================================
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.WAREHOUSE_METERING_VW AS
+SELECT
+    WAREHOUSE_NAME,
+    START_TIME,
+    END_TIME,
+    CREDITS_USED,
+    CREDITS_USED_COMPUTE,
+    CREDITS_USED_CLOUD_SERVICES
+FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY
+WHERE START_TIME >= DATEADD(day, -30, CURRENT_TIMESTAMP());
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.WAREHOUSE_METERING_VW IS
+'Warehouse credit usage with compute vs cloud services breakdown.';
+
+-- =====================================================
+-- Example Queries
+-- =====================================================
+
+-- Example 1: Who accessed the CUSTOMERS table?
+-- SELECT * FROM SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_BASE_OBJECTS_VW 
+-- WHERE BASE_OBJECT_NAME ILIKE '%CUSTOMERS%' 
+-- AND QUERY_START_TIME >= DATEADD(day, -7, CURRENT_TIMESTAMP());
+
+-- Example 2: What masking policies were applied today?
+-- SELECT * FROM SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_POLICIES_APPLIED_VW 
+-- WHERE POLICY_KIND = 'MASKING_POLICY' 
+-- AND QUERY_START_TIME >= CURRENT_DATE();
+
+-- Example 3: Show all modifications to production tables
+-- SELECT * FROM SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_OBJECTS_MODIFIED_VW 
+-- WHERE MODIFIED_OBJECT_NAME ILIKE 'PROD%' 
+-- AND QUERY_START_TIME >= DATEADD(hour, -24, CURRENT_TIMESTAMP());
+
+-- Example 4: Comprehensive sensitive data access report
+-- SELECT * FROM SNOWFLAKE_INTELLIGENCE.TOOLS.SENSITIVE_TABLE_ACCESS_VW 
+-- WHERE QUERY_START_TIME >= DATEADD(day, -1, CURRENT_TIMESTAMP())
+-- ORDER BY ROWS_ACCESSED DESC;
+
+-- Grant access to these views
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_DIRECT_OBJECTS_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_BASE_OBJECTS_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_OBJECTS_MODIFIED_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_POLICIES_APPLIED_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.SENSITIVE_TABLE_ACCESS_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.LOGIN_ACTIVITY_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.SESSION_ACTIVITY_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.STAGE_INVENTORY_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.CLUSTERING_ACTIVITY_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.ROLE_INVENTORY_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.TASK_ACTIVITY_VW TO ROLE PUBLIC;
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.WAREHOUSE_METERING_VW TO ROLE PUBLIC;
+
