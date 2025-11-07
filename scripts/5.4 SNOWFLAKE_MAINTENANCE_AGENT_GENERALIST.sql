@@ -1,5 +1,5 @@
 -- ============================================================================
--- SNOWFLAKE MAINTENANCE AGENT (GENERALIST) - PHASE 1-6 COMPLETE
+-- SNOWFLAKE MAINTENANCE AGENT (GENERALIST)
 -- ============================================================================
 -- Comprehensive agent for complete Snowflake account monitoring
 -- 
@@ -17,38 +17,38 @@ USE SNOWFLAKE_INTELLIGENCE.AGENTS;
 
 CREATE OR REPLACE AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT
 WITH PROFILE='{ "display_name": "Snowflake Maintenance Generalist" }'
-    COMMENT=$$ 🎯 COMPREHENSIVE SNOWFLAKE MONITORING AGENT - ALL 6 PHASES COMPLETE
+    COMMENT=$$ 🎯 COMPREHENSIVE SNOWFLAKE MONITORING AGENT
 
 I provide complete visibility into your Snowflake account across all operational areas:
 
-✅ PHASE 1: QUERY & PERFORMANCE (50+ metrics)
+📊 QUERY & PERFORMANCE (50+ metrics)
 • Query execution: timing, compilation, queueing, bottlenecks
 • Resource usage: bytes scanned/written/spilled, rows processed
 • Cache efficiency and partition pruning
 • Failed queries and error analysis
 
-✅ PHASE 2: SECURITY & AUTHENTICATION  
+🔒 SECURITY & AUTHENTICATION  
 • Login monitoring: success/failure rates, patterns
 • MFA adoption tracking and user authentication
 • IP analysis and suspicious login detection
 • Client type and version tracking
 
-✅ PHASE 3: COST & STORAGE
+💰 COST & STORAGE
 • Warehouse metering: credits by warehouse/time
 • Storage tracking: database, stage, failsafe costs
 • Storage growth trends and optimization
 
-✅ PHASE 4: GOVERNANCE & PERMISSIONS
+👥 GOVERNANCE & PERMISSIONS
 • User management and MFA adoption rates
 • Role definitions and privilege tracking
 • Grant auditing (users → roles → privileges)
 
-✅ PHASE 5: TASK OPERATIONS
+⚙️ TASK OPERATIONS
 • Task execution monitoring and success rates
 • Serverless task credit tracking
 • Task failure analysis
 
-✅ PHASE 6: ADVANCED OPERATIONS
+🔧 ADVANCED OPERATIONS
 • Snowpipe: data loading credits and files
 • Automatic clustering: maintenance costs
 • Materialized views: refresh credits
@@ -64,7 +64,7 @@ I excel at connecting the dots across domains:
 • Storage growth + query performance
 • Overall account health assessments
 
-📊 TOTAL COVERAGE:
+📈 COVERAGE:
 • 20 Account Usage tables
 • 35 categorical dimensions
 • 94 aggregated metrics
@@ -75,13 +75,13 @@ FROM SPECIFICATION $$
     "instructions": { 
         "response": "You are a comprehensive Snowflake maintenance expert with visibility into ALL operational areas.
 
-YOUR EXPERTISE SPANS 6 DOMAINS:
-1. Query Performance & Cost Attribution
-2. Security & Authentication  
-3. Storage & Resource Usage
-4. Governance & Permissions
-5. Task Operations
-6. Advanced Operations (Snowpipe, Clustering, MVs, Replication, Data Transfer)
+YOUR EXPERTISE SPANS:
+• Query Performance & Cost Attribution
+• Security & Authentication  
+• Storage & Resource Usage
+• Governance & Permissions
+• Task Operations
+• Advanced Operations (Snowpipe, Clustering, MVs, Replication, Data Transfer)
 
 RESPONSE STYLE:
 • Provide specific numbers and metrics (not generic advice)
@@ -109,7 +109,7 @@ For fast, specialized queries recommend:
         "orchestration": "SEMANTIC VIEW: SNOWFLAKE_MAINTENANCE_SVW (20 tables, 94 metrics)
 
 ═══════════════════════════════════════════════════════════════
-PHASE 1: QUERY PERFORMANCE & COST (QUERY_HISTORY, QUERY_ATTRIBUTION)
+QUERY PERFORMANCE & COST (QUERY_HISTORY, QUERY_ATTRIBUTION)
 ═══════════════════════════════════════════════════════════════
 DIMENSIONS: query_id, user_name, role_name, warehouse_name, database_name, 
 schema_name, query_type, execution_status, error_code, start_time, end_time
@@ -123,7 +123,7 @@ METRICS:
 • Counts: total_queries, failed_queries, successful_queries
 
 ═══════════════════════════════════════════════════════════════
-PHASE 2: SECURITY & AUTHENTICATION (LOGIN_HISTORY)
+SECURITY & AUTHENTICATION (LOGIN_HISTORY)
 ═══════════════════════════════════════════════════════════════
 DIMENSIONS: event_timestamp, event_type, client_ip, reported_client_type,
 reported_client_version, first/second_authentication_factor, is_success,
@@ -135,7 +135,7 @@ METRICS:
 • MFA: mfa_login_usage, mfa_adoption_pct, login_success_rate_pct
 
 ═══════════════════════════════════════════════════════════════
-PHASE 3: COST & STORAGE (WAREHOUSE_METERING, STORAGE tables)
+COST & STORAGE (WAREHOUSE_METERING, STORAGE tables)
 ═══════════════════════════════════════════════════════════════
 DIMENSIONS: usage_date, database_name (from storage tracking)
 
@@ -146,9 +146,9 @@ METRICS:
 • Stage: avg_stage_bytes, total_stage_storage
 
 ═══════════════════════════════════════════════════════════════
-PHASE 4: GOVERNANCE (USERS, ROLES, GRANTS)
+GOVERNANCE (USERS, ROLES, GRANTS)
 ═══════════════════════════════════════════════════════════════
-Note: No dimensions from these tables (column conflicts)
+Note: Metrics-only (column name conflicts prevent dimensions)
 
 METRICS:
 • Users: total_users, active_users, mfa_enabled_users, mfa_adoption_rate
@@ -156,16 +156,16 @@ METRICS:
 • Grants: total_role_grants_to_users, total_privilege_grants
 
 ═══════════════════════════════════════════════════════════════
-PHASE 5: TASK OPERATIONS (TASK_HISTORY, SERVERLESS_TASK_HISTORY)
+TASK OPERATIONS (TASK_HISTORY, SERVERLESS_TASK_HISTORY)
 ═══════════════════════════════════════════════════════════════
-Note: No dimensions from these tables (column conflicts)
+Note: Metrics-only (column name conflicts prevent dimensions)
 
 METRICS:
 • Tasks: total_task_runs, successful/failed_tasks, task_success_rate
 • Serverless: total_serverless_credits, avg_serverless_credits, serverless_task_count
 
 ═══════════════════════════════════════════════════════════════
-PHASE 6: ADVANCED OPERATIONS (7 tables)
+ADVANCED OPERATIONS (Pipes, Clustering, MVs, Replication, Transfer, Load)
 ═══════════════════════════════════════════════════════════════
 PIPE_USAGE_HISTORY:
 • total_pipe_credits, total_files_inserted, total_bytes_inserted
@@ -255,4 +255,46 @@ performance optimization, and overall account health assessments."
 }
 $$;
 
+-- ============================================================================
+-- GRANT ACCESS & VALIDATION
+-- ============================================================================
+
+-- Grant usage to allow others to use the agent
 GRANT USAGE ON AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT TO ROLE PUBLIC;
+
+-- ============================================================================
+-- VALIDATION COMMANDS
+-- ============================================================================
+
+-- Review the agent
+SHOW AGENTS IN DATABASE SNOWFLAKE_INTELLIGENCE;
+
+-- Review supporting semantic views
+SHOW SEMANTIC VIEWS IN DATABASE SNOWFLAKE_INTELLIGENCE;
+
+-- Verify email integration (if deployed)
+SHOW PROCEDURES LIKE 'SEND_EMAIL' IN SCHEMA SNOWFLAKE_INTELLIGENCE.TOOLS;
+
+-- ============================================================================
+-- QUICK TESTS
+-- ============================================================================
+
+-- Test 1: Overall health check
+-- SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+--     'What is my overall Snowflake account health?'
+-- );
+
+-- Test 2: Cost analysis
+-- SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+--     'What are my total costs across all services?'
+-- );
+
+-- Test 3: Security check
+-- SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+--     'Show me users with failed logins and expensive queries'
+-- );
+
+-- Test 4: Performance check
+-- SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+--     'Which warehouses have queueing issues?'
+-- );

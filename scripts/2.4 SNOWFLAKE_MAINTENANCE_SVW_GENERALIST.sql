@@ -1,35 +1,36 @@
 -- ============================================================================
--- 2.4 SNOWFLAKE MAINTENANCE SEMANTIC VIEW
+-- SNOWFLAKE MAINTENANCE SEMANTIC VIEW (GENERALIST)
 -- ============================================================================
 -- Comprehensive unified semantic view combining cost, performance, security,
 -- governance, and operations monitoring across all Snowflake ACCOUNT_USAGE views
 --
 -- ARCHITECTURE:
 -- - This is the GENERALIST semantic view for comprehensive cross-domain analysis
--- - Complements specialized views: 2.2 (Cost/Performance), 2.5 (Security)
--- - Built incrementally, testing each ACCOUNT_USAGE category
+-- - Complements specialized views: 2.2 (Cost/Performance), 2.3 (Security)
 --
--- CATEGORIES TO ADD (step by step):
--- ✅ CATEGORY 1: Query & Performance (DEPLOYED)
--- ✅ CATEGORY 2: Security & Authentication (DEPLOYED)
--- ✅ CATEGORY 3: Cost & Resource Usage (DEPLOYED)
--- ✅ CATEGORY 4: Data Governance (DEPLOYED)
--- ✅ CATEGORY 5: Operations & Monitoring (DEPLOYED)
--- ✅ CATEGORY 6: Advanced Operations (TESTING NOW)
+-- DATA COVERAGE:
+-- • Query & Performance
+-- • Security & Authentication  
+-- • Cost & Resource Usage
+-- • Data Governance
+-- • Operations & Monitoring
+-- • Advanced Operations
 -- ============================================================================
 
 USE ROLE cortex_role;
 USE SNOWFLAKE_INTELLIGENCE.TOOLS;
 
 -- ============================================================================
--- PHASE 1-6: COMPLETE SNOWFLAKE OPERATIONS VIEW
+-- COMPREHENSIVE SNOWFLAKE OPERATIONS SEMANTIC VIEW
 -- ============================================================================
--- Phase 1: QUERY_HISTORY and QUERY_ATTRIBUTION_HISTORY (✅ working)
--- Phase 2: LOGIN_HISTORY (✅ working)
--- Phase 3: Warehouse metering + Storage tracking (✅ working)
--- Phase 4: Users, Roles, Grants (✅ working)
--- Phase 5: Task execution + Operations (✅ working)
--- Phase 6: Advanced operations (Pipe, Clustering, MV, Replication, etc.)
+-- Includes: 20 ACCOUNT_USAGE tables, 35 dimensions, 94 metrics
+-- 
+-- Query & Performance: QUERY_HISTORY, QUERY_ATTRIBUTION_HISTORY
+-- Security: LOGIN_HISTORY
+-- Cost & Storage: WAREHOUSE_METERING, STORAGE_USAGE, DB/STAGE_STORAGE
+-- Governance: USERS, ROLES, GRANTS
+-- Operations: TASK_HISTORY, SERVERLESS_TASK_HISTORY
+-- Advanced: PIPE, CLUSTERING, MV, REPLICATION, TRANSFER, LOAD, METERING
 -- ============================================================================
 
 CREATE OR REPLACE SEMANTIC VIEW 
@@ -286,7 +287,7 @@ METRICS (
   metering_daily.total_cloud_services_daily AS SUM(metering_daily.CREDITS_USED_CLOUD_SERVICES) COMMENT='Total cloud services credits (daily)',
   metering_daily.avg_daily_credits AS AVG(metering_daily.CREDITS_USED) COMMENT='Average daily credit consumption'
 )
-COMMENT='Phase 1-6 COMPLETE: Comprehensive Snowflake monitoring with 20 tables, 35 dimensions, 94 metrics. Covers queries, security, storage, governance, tasks, Snowpipe, clustering, MVs, replication, data transfer, and warehouse load.'
+COMMENT='Comprehensive Snowflake monitoring with 20 tables, 35 dimensions, 94 metrics. Covers queries, security, storage, governance, tasks, Snowpipe, clustering, MVs, replication, data transfer, and warehouse load.'
 WITH EXTENSION (CA='{"tables":[
   {"name":"qh","description":"Query execution history with performance metrics, resource usage, and execution details from QUERY_HISTORY"},
   {"name":"qa","description":"Query attribution history for credit tracking and cost allocation from QUERY_ATTRIBUTION_HISTORY"},

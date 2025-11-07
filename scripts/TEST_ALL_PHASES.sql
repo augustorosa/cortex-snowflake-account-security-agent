@@ -1,13 +1,13 @@
 -- ============================================================================
 -- COMPREHENSIVE AUTOMATED TEST SUITE FOR ALL AGENTS
 -- ============================================================================
--- Tests all 6 phases of the Generalist Agent + 2 Specialist Agents
+-- Tests Generalist Agent + 2 Specialist Agents
 -- 
 -- USAGE:
 --   snowsql -f scripts/TEST_ALL_PHASES.sql -o output_format=table
 --
 -- AGENTS TESTED:
---   1. SNOWFLAKE_MAINTENANCE_AGENT (Generalist - All 6 Phases)
+--   1. SNOWFLAKE_MAINTENANCE_AGENT (Generalist - Complete Coverage)
 --   2. COST_PERFORMANCE_AGENT (Specialist)
 --   3. SECURITY_MONITORING_AGENT (Specialist)
 -- ============================================================================
