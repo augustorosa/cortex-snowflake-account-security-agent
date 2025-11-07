@@ -18,15 +18,17 @@ AS
 $$
 def send_email(session, recipient_email, subject, body):
     try:
-        # Escape single quotes in the body
+        # Properly escape single quotes in all user-provided parameters to prevent SQL injection
+        escaped_recipient = recipient_email.replace("'", "''")
+        escaped_subject = subject.replace("'", "''")
         escaped_body = body.replace("'", "''")
         
-        # Execute the system procedure call
+        # Execute the system procedure call with properly escaped parameters
         session.sql(f"""
             CALL SYSTEM$SEND_EMAIL(
                 'email_integration',
-                '{recipient_email}',
-                '{subject}',
+                '{escaped_recipient}',
+                '{escaped_subject}',
                 '{escaped_body}',
                 'text/html'
             )

@@ -1,20 +1,18 @@
--- Enhanced Semantic View for Security and Diagnostics
--- This expands on the basic cost/performance view with comprehensive security monitoring
+-- Cost & Performance Semantic View
+-- Focused on query performance, cost analysis, and warehouse optimization
+-- This is the "working" semantic view with proven QUERY_HISTORY metrics
+
 USE ROLE cortex_role;
 USE SNOWFLAKE_INTELLIGENCE.TOOLS;
 
 CREATE OR REPLACE SEMANTIC VIEW 
-    SNOWFLAKE_INTELLIGENCE.TOOLS.ENHANCED_SECURITY_DIAGNOSTICS_SVW
+    SNOWFLAKE_INTELLIGENCE.TOOLS.COST_PERFORMANCE_SVW
 TABLES (
   SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY,
-  SNOWFLAKE.ACCOUNT_USAGE.QUERY_ATTRIBUTION_HISTORY,
-  SNOWFLAKE_INTELLIGENCE.TOOLS.LOGIN_ACTIVITY_VW,
-  SNOWFLAKE_INTELLIGENCE.TOOLS.LOGIN_SECURITY_DASHBOARD_VW,
-  SNOWFLAKE_INTELLIGENCE.TOOLS.SUSPICIOUS_LOGIN_PATTERNS_VW,
-  SNOWFLAKE_INTELLIGENCE.TOOLS.FAILED_LOGIN_SUMMARY_VW
+  SNOWFLAKE.ACCOUNT_USAGE.QUERY_ATTRIBUTION_HISTORY
 )
 FACTS (
-  -- ===== QUERY HISTORY FACTS (Proven from working example) =====
+  -- ===== QUERY HISTORY FACTS =====
   QUERY_HISTORY.BYTES_READ_FROM_RESULT AS BYTES_READ_FROM_RESULT COMMENT='The total number of bytes read from the query results.',
   QUERY_HISTORY.BYTES_SCANNED AS BYTES_SCANNED COMMENT='The total number of bytes scanned by the query.',
   QUERY_HISTORY.BYTES_SENT_OVER_THE_NETWORK AS BYTES_SENT_OVER_THE_NETWORK COMMENT='The total amount of data transmitted over the network during the execution of a query, measured in bytes.',
@@ -64,13 +62,13 @@ FACTS (
   QUERY_HISTORY.USER_SCHEMA_ID AS USER_SCHEMA_ID COMMENT='Unique identifier for the schema that the user belongs to.',
   QUERY_HISTORY.WAREHOUSE_ID AS WAREHOUSE_ID COMMENT='Unique identifier for the warehouse associated with the query.',
   
-  -- ===== QUERY ATTRIBUTION FACTS (Proven from working example) =====
+  -- ===== QUERY ATTRIBUTION FACTS =====
   QUERY_ATTRIBUTION_HISTORY.CREDITS_ATTRIBUTED_COMPUTE AS CREDITS_ATTRIBUTED_COMPUTE COMMENT='The percentage of compute resources utilized that are attributed to the user or organization.',
   QUERY_ATTRIBUTION_HISTORY.CREDITS_USED_QUERY_ACCELERATION AS CREDITS_USED_QUERY_ACCELERATION COMMENT='The total amount of credits used for query acceleration.',
   QUERY_ATTRIBUTION_HISTORY.WAREHOUSE_ID AS WAREHOUSE_ID COMMENT='Unique identifier for the warehouse in attribution history.'
 )
 DIMENSIONS (
-  -- ===== QUERY HISTORY DIMENSIONS (Proven from working example) =====
+  -- ===== QUERY HISTORY DIMENSIONS =====
   QUERY_HISTORY.DATABASE_NAME AS DATABASE_NAME COMMENT='The name of the database where the query was executed.',
   QUERY_HISTORY.END_TIME AS END_TIME COMMENT='The date and time when each query was completed.',
   QUERY_HISTORY.ERROR_CODE AS ERROR_CODE COMMENT='Error codes associated with query execution.',
@@ -102,7 +100,7 @@ DIMENSIONS (
   QUERY_HISTORY.WAREHOUSE_SIZE AS WAREHOUSE_SIZE COMMENT='The size of the warehouse.',
   QUERY_HISTORY.WAREHOUSE_TYPE AS WAREHOUSE_TYPE COMMENT='The type of warehouse used to execute the query.',
   
-  -- ===== QUERY ATTRIBUTION DIMENSIONS (Proven from working example) =====
+  -- ===== QUERY ATTRIBUTION DIMENSIONS =====
   QUERY_ATTRIBUTION_HISTORY.END_TIME AS END_TIME COMMENT='The date and time when the attribution event ended.',
   QUERY_ATTRIBUTION_HISTORY.PARENT_QUERY_ID AS PARENT_QUERY_ID COMMENT='Unique identifier of the parent query.',
   QUERY_ATTRIBUTION_HISTORY.QUERY_HASH AS QUERY_HASH COMMENT='Unique identifier for a query in attribution history.',
@@ -113,19 +111,11 @@ DIMENSIONS (
   QUERY_ATTRIBUTION_HISTORY.START_TIME AS START_TIME COMMENT='The timestamp when the attribution event started.',
   QUERY_ATTRIBUTION_HISTORY.USER_NAME AS USER_NAME COMMENT='The user in attribution history.',
   QUERY_ATTRIBUTION_HISTORY.WAREHOUSE_NAME AS WAREHOUSE_NAME COMMENT='The warehouse name in attribution history.'
-  
-  -- Note: LOGIN_ACTIVITY_VW and SESSION_ACTIVITY_VW are included in TABLES for AI agent context
-  -- but dimensions are not explicitly defined due to semantic view limitations with helper views
 )
-COMMENT='Enhanced semantic view for security monitoring, cost optimization, and operational diagnostics. 
-Built on proven QUERY_HISTORY and QUERY_ATTRIBUTION_HISTORY foundation with comprehensive metrics.'
+COMMENT='Cost and performance semantic view for query optimization and cost analysis. Built on QUERY_HISTORY and QUERY_ATTRIBUTION_HISTORY.'
 WITH EXTENSION (CA='{"tables":[
-  {"name":"QUERY_HISTORY","description":"Query execution history and performance metrics"},
-  {"name":"QUERY_ATTRIBUTION_HISTORY","description":"Query credit attribution and cost tracking"},
-  {"name":"LOGIN_ACTIVITY","description":"Real-time login attempts from last 7 days. Columns: USER_NAME, CLIENT_IP, IS_SUCCESS (YES/NO), ERROR_CODE, ERROR_MESSAGE, EVENT_TYPE, REPORTED_CLIENT_TYPE"},
-  {"name":"LOGIN_DASHBOARD","description":"Login security metrics summary. Columns: METRIC, VALUE, DESCRIPTION. Shows total attempts, success rate, failed logins, unique users and IPs"},
-  {"name":"SUSPICIOUS_LOGINS","description":"Suspicious login patterns with risk scoring. Columns: USER_NAME, CLIENT_IP, FAILED_COUNT, RISK_LEVEL (HIGH/MEDIUM/LOW), THREAT_INDICATOR, FAILURE_RATE_PCT"},
-  {"name":"FAILED_LOGINS","description":"Aggregated failed login summary. Columns: USER_NAME, CLIENT_IP, FAILED_ATTEMPT_COUNT, ERROR_CODES, ERROR_MESSAGES"}
+  {"name":"QUERY_HISTORY","description":"Query execution history with 50+ performance metrics and cost data"},
+  {"name":"QUERY_ATTRIBUTION_HISTORY","description":"Query credit attribution and warehouse cost tracking"}
 ],"verified_queries":[
   {
     "name":"Expensive Queries Last Hour",
@@ -143,24 +133,16 @@ WITH EXTENSION (CA='{"tables":[
     "sql":"SELECT user_name, COUNT(*) as query_count, AVG(total_elapsed_time) as avg_time, MAX(total_elapsed_time) as max_time FROM query_history WHERE start_time >= DATEADD(day, -7, CURRENT_TIMESTAMP()) GROUP BY user_name ORDER BY avg_time DESC LIMIT 10"
   },
   {
-    "name":"Failed Login Attempts",
-    "question":"Show me failed login attempts",
-    "sql":"SELECT USER_NAME, CLIENT_IP, ERROR_CODE, ERROR_MESSAGE, EVENT_TYPE FROM LOGIN_ACTIVITY_VW WHERE IS_SUCCESS = ''NO'' ORDER BY USER_NAME"
+    "name":"Queries Spilling to Disk",
+    "question":"Show me queries that spilled to local or remote storage",
+    "sql":"SELECT query_id, user_name, warehouse_name, bytes_spilled_to_local_storage, bytes_spilled_to_remote_storage, total_elapsed_time FROM query_history WHERE (bytes_spilled_to_local_storage > 0 OR bytes_spilled_to_remote_storage > 0) AND start_time >= DATEADD(day, -7, CURRENT_TIMESTAMP()) ORDER BY bytes_spilled_to_remote_storage DESC LIMIT 20"
   },
   {
-    "name":"Login Security Dashboard",
-    "question":"Show me login security metrics",
-    "sql":"SELECT * FROM LOGIN_SECURITY_DASHBOARD_VW ORDER BY METRIC"
-  },
-  {
-    "name":"Suspicious Login Patterns",
-    "question":"Are there any suspicious login attempts?",
-    "sql":"SELECT USER_NAME, CLIENT_IP, FAILED_COUNT, RISK_LEVEL, THREAT_INDICATOR FROM SUSPICIOUS_LOGIN_PATTERNS_VW WHERE RISK_LEVEL IN (''HIGH'', ''MEDIUM'') ORDER BY FAILED_COUNT DESC"
-  },
-  {
-    "name":"Failed Login Summary",
-    "question":"Summarize failed login attempts by user and IP",
-    "sql":"SELECT USER_NAME, CLIENT_IP, FAILED_ATTEMPT_COUNT, ERROR_CODES FROM FAILED_LOGIN_SUMMARY_VW ORDER BY FAILED_ATTEMPT_COUNT DESC"
+    "name":"Warehouse Cost Analysis",
+    "question":"Which warehouses are consuming the most credits?",
+    "sql":"SELECT warehouse_name, COUNT(*) as query_count, SUM(credits_attributed_compute) as total_credits FROM query_attribution_history WHERE start_time >= DATEADD(day, -7, CURRENT_TIMESTAMP()) GROUP BY warehouse_name ORDER BY total_credits DESC"
   }
 ]}');
+
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.COST_PERFORMANCE_SVW TO ROLE PUBLIC;
 
