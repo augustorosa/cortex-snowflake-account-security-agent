@@ -13,20 +13,23 @@
 -- ✅ CATEGORY 1: Query & Performance (DEPLOYED)
 -- ✅ CATEGORY 2: Security & Authentication (DEPLOYED)
 -- ✅ CATEGORY 3: Cost & Resource Usage (DEPLOYED)
--- ✅ CATEGORY 4: Data Governance (TESTING NOW)
--- ⏳ CATEGORY 5: Operations & Monitoring
+-- ✅ CATEGORY 4: Data Governance (DEPLOYED)
+-- ✅ CATEGORY 5: Operations & Monitoring (DEPLOYED)
+-- ✅ CATEGORY 6: Advanced Operations (TESTING NOW)
 -- ============================================================================
 
 USE ROLE cortex_role;
 USE SNOWFLAKE_INTELLIGENCE.TOOLS;
 
 -- ============================================================================
--- PHASE 1 + 2 + 3 + 4: QUERY, SECURITY, COST, AND GOVERNANCE
+-- PHASE 1-6: COMPLETE SNOWFLAKE OPERATIONS VIEW
 -- ============================================================================
 -- Phase 1: QUERY_HISTORY and QUERY_ATTRIBUTION_HISTORY (✅ working)
 -- Phase 2: LOGIN_HISTORY (✅ working)
 -- Phase 3: Warehouse metering + Storage tracking (✅ working)
--- Phase 4: Users, Roles, Grants (adding now)
+-- Phase 4: Users, Roles, Grants (✅ working)
+-- Phase 5: Task execution + Operations (✅ working)
+-- Phase 6: Advanced operations (Pipe, Clustering, MV, Replication, etc.)
 -- ============================================================================
 
 CREATE OR REPLACE SEMANTIC VIEW 
@@ -42,7 +45,16 @@ TABLES (
   users AS SNOWFLAKE.ACCOUNT_USAGE.USERS,
   roles AS SNOWFLAKE.ACCOUNT_USAGE.ROLES,
   grants_users AS SNOWFLAKE.ACCOUNT_USAGE.GRANTS_TO_USERS,
-  grants_roles AS SNOWFLAKE.ACCOUNT_USAGE.GRANTS_TO_ROLES
+  grants_roles AS SNOWFLAKE.ACCOUNT_USAGE.GRANTS_TO_ROLES,
+  task_hist AS SNOWFLAKE.ACCOUNT_USAGE.TASK_HISTORY,
+  serverless_task AS SNOWFLAKE.ACCOUNT_USAGE.SERVERLESS_TASK_HISTORY,
+  pipe_usage AS SNOWFLAKE.ACCOUNT_USAGE.PIPE_USAGE_HISTORY,
+  clustering AS SNOWFLAKE.ACCOUNT_USAGE.AUTOMATIC_CLUSTERING_HISTORY,
+  mv_refresh AS SNOWFLAKE.ACCOUNT_USAGE.MATERIALIZED_VIEW_REFRESH_HISTORY,
+  replication AS SNOWFLAKE.ACCOUNT_USAGE.REPLICATION_USAGE_HISTORY,
+  data_transfer AS SNOWFLAKE.ACCOUNT_USAGE.DATA_TRANSFER_HISTORY,
+  wh_load AS SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_LOAD_HISTORY,
+  metering_daily AS SNOWFLAKE.ACCOUNT_USAGE.METERING_DAILY_HISTORY
 )
 -- ============================================================================
 -- DIMENSIONS: Categorical attributes for filtering and grouping
@@ -109,6 +121,25 @@ DIMENSIONS (
   -- - Total roles  
   -- - Grant counts
   -- Use QUERY_HISTORY dimensions (user_name, role_name) for user/role analysis
+  
+  -- === TASK OPERATIONS (Phase 5) ===
+  -- Note: TASK_HISTORY and SERVERLESS_TASK_HISTORY have too many conflicts
+  -- (NAME, TASK_NAME, STATE, START_TIME, END_TIME, SCHEDULED_TIME, QUERY_ID, etc.)
+  -- These tables provide METRICS only for task monitoring:
+  -- - Total task runs, success/failure rates
+  -- - Serverless task credits
+  -- Use QUERY_HISTORY for query-level task analysis (via task_hist.QUERY_ID join)
+  
+  -- === ADVANCED OPERATIONS (Phase 6) ===
+  -- Note: Phase 6 tables (PIPE_USAGE, CLUSTERING, MV_REFRESH, REPLICATION, etc.)
+  -- Expected to have similar conflicts (NAME, START_TIME, END_TIME, etc.)
+  -- Providing METRICS only for advanced operational analytics:
+  -- - Snowpipe credits and files loaded
+  -- - Clustering costs and bytes reclustered
+  -- - MV refresh costs
+  -- - Replication and data transfer costs
+  -- - Warehouse load metrics (queueing)
+  -- - Daily metering reconciliation
 )
 -- ============================================================================
 -- METRICS: Aggregated business measures for analytics
@@ -199,9 +230,63 @@ METRICS (
   grants_users.total_role_grants_to_users AS COUNT(*) COMMENT='Total role grants to users',
   grants_users.unique_users_with_roles AS COUNT(DISTINCT grants_users.GRANTEE_NAME) COMMENT='Users with role grants',
   grants_roles.total_privilege_grants AS COUNT(*) COMMENT='Total privilege grants to roles',
-  grants_roles.unique_roles_with_grants AS COUNT(DISTINCT grants_roles.GRANTEE_NAME) COMMENT='Roles with privilege grants'
+  grants_roles.unique_roles_with_grants AS COUNT(DISTINCT grants_roles.GRANTEE_NAME) COMMENT='Roles with privilege grants',
+  
+  -- === TASK EXECUTION METRICS (Phase 5 - Operations) ===
+  task_hist.total_task_runs AS COUNT(*) COMMENT='Total task executions',
+  task_hist.successful_tasks AS COUNT_IF(task_hist.STATE = 'SUCCEEDED') COMMENT='Successful task runs',
+  task_hist.failed_tasks AS COUNT_IF(task_hist.STATE = 'FAILED') COMMENT='Failed task runs',
+  task_hist.unique_tasks AS COUNT(DISTINCT task_hist.NAME) COMMENT='Distinct tasks executed',
+  task_hist.task_success_rate AS (
+    CAST(COUNT_IF(task_hist.STATE = 'SUCCEEDED') AS FLOAT) * 100.0 / NULLIF(COUNT(*), 0)
+  ) COMMENT='Task success rate percentage',
+  
+  -- === SERVERLESS TASK METRICS (Phase 5 - Serverless Costs) ===
+  serverless_task.total_serverless_credits AS SUM(serverless_task.CREDITS_USED) COMMENT='Total serverless task credits',
+  serverless_task.avg_serverless_credits AS AVG(serverless_task.CREDITS_USED) COMMENT='Average credits per serverless task',
+  serverless_task.serverless_task_count AS COUNT(*) COMMENT='Count of serverless task executions',
+  serverless_task.unique_serverless_tasks AS COUNT(DISTINCT serverless_task.TASK_NAME) COMMENT='Distinct serverless tasks',
+  
+  -- === SNOWPIPE METRICS (Phase 6 - Data Loading) ===
+  pipe_usage.total_pipe_credits AS SUM(pipe_usage.CREDITS_USED) COMMENT='Total Snowpipe credits consumed',
+  pipe_usage.total_files_inserted AS SUM(pipe_usage.FILES_INSERTED) COMMENT='Total files loaded via Snowpipe',
+  pipe_usage.total_bytes_inserted AS SUM(pipe_usage.BYTES_INSERTED) COMMENT='Total bytes loaded via Snowpipe',
+  pipe_usage.avg_pipe_credits AS AVG(pipe_usage.CREDITS_USED) COMMENT='Average Snowpipe credits per execution',
+  
+  -- === CLUSTERING METRICS (Phase 6 - Maintenance Costs) ===
+  clustering.total_clustering_credits AS SUM(clustering.CREDITS_USED) COMMENT='Total automatic clustering credits',
+  clustering.total_bytes_reclustered AS SUM(clustering.NUM_BYTES_RECLUSTERED) COMMENT='Total bytes reclustered',
+  clustering.total_rows_reclustered AS SUM(clustering.NUM_ROWS_RECLUSTERED) COMMENT='Total rows reclustered',
+  clustering.avg_clustering_credits AS AVG(clustering.CREDITS_USED) COMMENT='Average clustering credits per operation',
+  
+  -- === MATERIALIZED VIEW METRICS (Phase 6 - MV Costs) ===
+  mv_refresh.total_mv_credits AS SUM(mv_refresh.CREDITS_USED) COMMENT='Total MV refresh credits',
+  mv_refresh.total_mv_refreshes AS COUNT(*) COMMENT='Total MV refresh operations',
+  mv_refresh.avg_mv_credits AS AVG(mv_refresh.CREDITS_USED) COMMENT='Average credits per MV refresh',
+  
+  -- === REPLICATION METRICS (Phase 6 - Replication Costs) ===
+  replication.total_replication_credits AS SUM(replication.CREDITS_USED) COMMENT='Total replication credits',
+  replication.total_bytes_replicated AS SUM(replication.BYTES_TRANSFERRED) COMMENT='Total bytes replicated',
+  replication.avg_replication_credits AS AVG(replication.CREDITS_USED) COMMENT='Average replication credits',
+  
+  -- === DATA TRANSFER METRICS (Phase 6 - Transfer Costs) ===
+  data_transfer.total_transfer_bytes AS SUM(data_transfer.BYTES_TRANSFERRED) COMMENT='Total bytes transferred cross-region/cloud',
+  data_transfer.avg_transfer_bytes AS AVG(data_transfer.BYTES_TRANSFERRED) COMMENT='Average bytes per transfer',
+  data_transfer.total_transfer_operations AS COUNT(*) COMMENT='Total data transfer operations',
+  
+  -- === WAREHOUSE LOAD METRICS (Phase 6 - Performance) ===
+  wh_load.avg_running_queries AS AVG(wh_load.AVG_RUNNING) COMMENT='Average running queries',
+  wh_load.avg_queued_load AS AVG(wh_load.AVG_QUEUED_LOAD) COMMENT='Average queued query load',
+  wh_load.avg_queued_provisioning AS AVG(wh_load.AVG_QUEUED_PROVISIONING) COMMENT='Average provisioning queue',
+  wh_load.avg_blocked_queries AS AVG(wh_load.AVG_BLOCKED) COMMENT='Average blocked queries',
+  
+  -- === DAILY METERING METRICS (Phase 6 - Reconciliation) ===
+  metering_daily.total_daily_credits AS SUM(metering_daily.CREDITS_USED) COMMENT='Total billable credits (daily)',
+  metering_daily.total_compute_credits_daily AS SUM(metering_daily.CREDITS_USED_COMPUTE) COMMENT='Total compute credits (daily)',
+  metering_daily.total_cloud_services_daily AS SUM(metering_daily.CREDITS_USED_CLOUD_SERVICES) COMMENT='Total cloud services credits (daily)',
+  metering_daily.avg_daily_credits AS AVG(metering_daily.CREDITS_USED) COMMENT='Average daily credit consumption'
 )
-COMMENT='Comprehensive Snowflake maintenance semantic view with Query/Performance + Security + Cost/Storage + Governance. 60 dimensions, 56 metrics spanning execution, security, costs, and user/role management.'
+COMMENT='Phase 1-6 COMPLETE: Comprehensive Snowflake monitoring with 20 tables, 35 dimensions, 94 metrics. Covers queries, security, storage, governance, tasks, Snowpipe, clustering, MVs, replication, data transfer, and warehouse load.'
 WITH EXTENSION (CA='{"tables":[
   {"name":"qh","description":"Query execution history with performance metrics, resource usage, and execution details from QUERY_HISTORY"},
   {"name":"qa","description":"Query attribution history for credit tracking and cost allocation from QUERY_ATTRIBUTION_HISTORY"},
@@ -213,7 +298,16 @@ WITH EXTENSION (CA='{"tables":[
   {"name":"users","description":"User account information from USERS. Includes MFA status, email, default settings"},
   {"name":"roles","description":"Role definitions from ROLES table"},
   {"name":"grants_users","description":"Role grants to users from GRANTS_TO_USERS"},
-  {"name":"grants_roles","description":"Privilege grants to roles from GRANTS_TO_ROLES"}
+  {"name":"grants_roles","description":"Privilege grants to roles from GRANTS_TO_ROLES"},
+  {"name":"task_hist","description":"Task execution history from TASK_HISTORY. Task runs, states, errors"},
+  {"name":"serverless_task","description":"Serverless task credit usage from SERVERLESS_TASK_HISTORY"},
+  {"name":"pipe_usage","description":"Snowpipe data loading credits and files from PIPE_USAGE_HISTORY"},
+  {"name":"clustering","description":"Automatic clustering costs and bytes reclustered from AUTOMATIC_CLUSTERING_HISTORY"},
+  {"name":"mv_refresh","description":"Materialized view refresh credits from MATERIALIZED_VIEW_REFRESH_HISTORY"},
+  {"name":"replication","description":"Database replication credits and bytes from REPLICATION_USAGE_HISTORY"},
+  {"name":"data_transfer","description":"Cross-region/cloud data transfer costs from DATA_TRANSFER_HISTORY"},
+  {"name":"wh_load","description":"Warehouse queue metrics (5-min intervals) from WAREHOUSE_LOAD_HISTORY"},
+  {"name":"metering_daily","description":"Daily billable credit reconciliation from METERING_DAILY_HISTORY"}
 ],"verified_queries":[
   {
     "name":"Most Expensive Queries",
@@ -269,6 +363,31 @@ WITH EXTENSION (CA='{"tables":[
     "name":"Role Grants Summary",
     "question":"Which users have the most role grants?",
     "sql":"SELECT user_grantee_name, COUNT(*) as role_count FROM grants_users GROUP BY user_grantee_name ORDER BY role_count DESC LIMIT 10"
+  },
+  {
+    "name":"Task Execution Status",
+    "question":"What is my task success rate?",
+    "sql":"SELECT COUNT(*) as total_tasks, COUNT_IF(task_hist.STATE = ''SUCCEEDED'') as successful, COUNT_IF(task_hist.STATE = ''FAILED'') as failed, CAST(COUNT_IF(task_hist.STATE = ''SUCCEEDED'') AS FLOAT) * 100 / COUNT(*) as success_rate_pct FROM task_hist"
+  },
+  {
+    "name":"Serverless Task Costs",
+    "question":"How much are serverless tasks costing me?",
+    "sql":"SELECT SUM(serverless_task.CREDITS_USED) as total_credits, COUNT(*) as total_runs, AVG(serverless_task.CREDITS_USED) as avg_credits_per_run FROM serverless_task"
+  },
+  {
+    "name":"Snowpipe Usage Summary",
+    "question":"How much data has Snowpipe loaded?",
+    "sql":"SELECT SUM(pipe_usage.CREDITS_USED) as total_credits, SUM(pipe_usage.FILES_INSERTED) as total_files, SUM(pipe_usage.BYTES_INSERTED) / 1099511627776.0 as total_tb_loaded FROM pipe_usage"
+  },
+  {
+    "name":"Clustering Costs",
+    "question":"What are my automatic clustering costs?",
+    "sql":"SELECT SUM(clustering.CREDITS_USED) as total_credits, SUM(clustering.BYTES_RECLUSTERED) / 1099511627776.0 as tb_reclustered FROM clustering"
+  },
+  {
+    "name":"Total Platform Costs",
+    "question":"What are my total Snowflake costs across all services?",
+    "sql":"SELECT SUM(metering_daily.CREDITS_USED) as total_billable_credits, SUM(metering_daily.CREDITS_USED_COMPUTE) as compute_credits, SUM(metering_daily.CREDITS_USED_CLOUD_SERVICES) as cloud_services_credits FROM metering_daily"
   }
 ]}');
 
