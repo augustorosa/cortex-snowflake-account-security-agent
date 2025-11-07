@@ -1,113 +1,199 @@
-# 🔒 Snowflake Enhanced Security & Performance Monitoring with Cortex AI
+# 🎯 Comprehensive Snowflake Operations Monitoring with Cortex AI
 
-## Overview
+> **AI-Powered Monitoring, Security, Cost Control, and Performance Optimization**
 
-This repository provides a comprehensive, AI-powered security monitoring and performance optimization solution for Snowflake using **Cortex Agents** and **Semantic Views**. Ask natural language questions to detect security threats, optimize costs, and improve performance.
-
----
-
-## ✨ Key Features
-
-### 🔒 **Security Monitoring**
-- **Network Policy Violations** - Real-time detection of blocked connection attempts
-- **External Endpoint Tracking** - Monitor all outbound API calls and data transfers
-- **Failed Login Analysis** - Detect brute force attacks and unauthorized access
-- **Privilege Escalation** - Track ACCOUNTADMIN grants and suspicious privilege changes
-- **Data Access Auditing** - Monitor access to sensitive PII/PHI tables
-- **Stale Account Detection** - Identify inactive accounts posing security risks
-- **Policy Compliance** - Verify masking and row access policy coverage
-
-### ⚡ **Performance Optimization**
-- **Slow Query Analysis** - Identify bottlenecks and optimization opportunities
-- **Memory Spilling Detection** - Find queries exceeding warehouse capacity
-- **Cache Efficiency** - Analyze result cache and metadata cache usage
-- **Partition Pruning** - Detect inefficient table scans
-- **Compilation Issues** - Track long compilation times and errors
-
-### 💰 **Cost Management**
-- **Credit Consumption** - Track spending by warehouse, user, query type
-- **Cost Spike Detection** - Identify anomalous cost increases
-- **Storage Growth** - Monitor table growth and Time Travel costs
-- **Automatic Clustering** - Analyze clustering ROI
-- **Task & Pipe Costs** - Track operational overhead
-
-### 📊 **Operational Monitoring**
-- **Task Failures** - Monitor scheduled task reliability
-- **Data Loading** - Track COPY and Snowpipe success rates
-- **Replication Costs** - Monitor cross-region/cloud data transfer
+[![Snowflake](https://img.shields.io/badge/Snowflake-Complete-29B5E8?logo=snowflake)](https://www.snowflake.com/)
+[![Cortex AI](https://img.shields.io/badge/Cortex_AI-Enabled-00A3E0)](https://docs.snowflake.com/en/user-guide/ml-powered-features)
+[![Status](https://img.shields.io/badge/Status-Production_Ready-success)]()
 
 ---
 
-## 🚀 Quick Start
+## 🌟 Overview
+
+A **production-ready**, comprehensive Snowflake monitoring solution leveraging **Cortex AI Agents** and **Semantic Views** to provide complete visibility into your Snowflake environment through natural language questions.
+
+**Ask questions like:**
+- *"What's my overall Snowflake account health?"*
+- *"Show me users with failed logins and expensive queries"*
+- *"What are my total costs across all services?"*
+- *"Which tables lack masking policies?"*
+
+---
+
+## ✨ Key Capabilities
+
+### 🎯 **Triple-Agent Architecture**
+
+1. **Generalist Agent (Comprehensive)**
+   - All-in-one cross-domain analysis
+   - 20 ACCOUNT_USAGE tables
+   - 94 metrics spanning all operational areas
+   - Best for: holistic insights, cross-domain correlations
+
+2. **Cost/Performance Specialist**
+   - Fast, focused cost and performance queries
+   - Query execution, credits, resource usage
+   - Best for: quick performance checks, cost analysis
+
+3. **Security Specialist**
+   - Dedicated security and authentication monitoring
+   - Login tracking, MFA adoption, threats
+   - Best for: security audits, compliance checks
+
+---
+
+## 📊 Complete Coverage (All 6 Phases)
+
+### ✅ **Phase 1: Query Performance & Cost**
+- 50+ query execution metrics
+- Cost attribution and credit tracking
+- Performance bottleneck detection
+- Spilling, caching, partition pruning
+- **Tables:** QUERY_HISTORY, QUERY_ATTRIBUTION_HISTORY
+
+### ✅ **Phase 2: Security & Authentication**
+- Login monitoring (365 days history)
+- Failed login detection & MFA tracking
+- Client IP/type analysis
+- Suspicious pattern identification
+- **Tables:** LOGIN_HISTORY
+
+### ✅ **Phase 3: Cost & Storage**
+- Warehouse credit consumption
+- Storage growth tracking
+- Database/stage storage breakdown
+- Failsafe and Time Travel costs
+- **Tables:** WAREHOUSE_METERING_HISTORY, STORAGE_USAGE, DATABASE_STORAGE_USAGE_HISTORY, STAGE_STORAGE_USAGE_HISTORY
+
+### ✅ **Phase 4: Governance & Permissions**
+- User and role management
+- MFA adoption tracking
+- Grant auditing (users→roles→privileges)
+- Permission distribution analysis
+- **Tables:** USERS, ROLES, GRANTS_TO_USERS, GRANTS_TO_ROLES
+
+### ✅ **Phase 5: Task Operations**
+- Task execution monitoring
+- Success/failure rate tracking
+- Serverless task credit consumption
+- Task failure analysis
+- **Tables:** TASK_HISTORY, SERVERLESS_TASK_HISTORY
+
+### ✅ **Phase 6: Advanced Operations**
+- **Snowpipe:** Data loading credits and files
+- **Clustering:** Automatic clustering maintenance costs
+- **Materialized Views:** Refresh credits
+- **Replication:** Cross-region replication costs
+- **Data Transfer:** Inter-cloud/region transfer tracking
+- **Warehouse Load:** Queue metrics (5-min intervals)
+- **Daily Metering:** Billable credit reconciliation
+- **Tables:** PIPE_USAGE_HISTORY, AUTOMATIC_CLUSTERING_HISTORY, MATERIALIZED_VIEW_REFRESH_HISTORY, REPLICATION_USAGE_HISTORY, DATA_TRANSFER_HISTORY, WAREHOUSE_LOAD_HISTORY, METERING_DAILY_HISTORY
+
+---
+
+## 📈 By The Numbers
+
+| Metric | Count |
+|--------|-------|
+| **ACCOUNT_USAGE Tables** | 20 |
+| **Dimensions** | 35 |
+| **Metrics** | 94 |
+| **Verified Queries** | 17 |
+| **Test Cases** | 27 |
+| **Phases Complete** | 6/6 ✅ |
+
+---
+
+## 🚀 Quick Start (15 Minutes)
 
 ### Prerequisites
 - Snowflake account with ACCOUNTADMIN access
-- Cortex features enabled
-- ~15 minutes for deployment
+- Cortex features enabled in your region
+- SnowSQL CLI (optional, for automated deployment)
 
-### Installation (5 Steps)
+### Installation Steps
 
-```sql
--- 1. Foundation Setup (2 min)
-USE ROLE ACCOUNTADMIN;
--- Execute: scripts/1. lab foundations.sql
+```bash
+# 1. Clone repository
+git clone <repository-url>
+cd cortex-snowflake-account-info-lab
 
--- 2. Enhanced Semantic View (3 min) ⭐ CORE COMPONENT
-USE ROLE cortex_role;
--- Execute: scripts/2.1 ENHANCED_SECURITY_DIAGNOSTICS_SVW.sql
+# 2. Configure SnowSQL connection (optional)
+snowsql -a <account> -u <username>
 
--- 3. Email Integration (2 min)
--- Execute: scripts/3. email integration.sql
+# 3. Deploy foundation (2 min)
+snowsql -f "scripts/1. lab foundations.sql"
 
--- 4. Documentation Access (5 min)
--- Execute: scripts/4. accept marketplace terms.sql
+# 4. Deploy schema (1 min)
+snowsql -f "scripts/2. SNOWFLAKE_INTELLIGENCE.TOOLS schema.sql"
 
--- 5. Security Agent (2 min) ⭐ MAIN AGENT
--- Execute: scripts/5.1 ENHANCED_SECURITY_AGENT.sql
+# 5. Deploy specialist agents (3 min)
+snowsql -f "scripts/2.2 COST_PERFORMANCE_SVW_SPECIALIST.sql"
+snowsql -f "scripts/5.2 COST_PERFORMANCE_AGENT_SPECIALIST.sql"
+snowsql -f "scripts/2.3 SECURITY_MONITORING_SVW_SPECIALIST.sql"
+snowsql -f "scripts/5.3 SECURITY_MONITORING_AGENT_SPECIALIST.sql"
+
+# 6. Deploy generalist agent (5 min) ⭐ ALL 6 PHASES
+snowsql -f "scripts/2.4 SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql"
+snowsql -f "scripts/5.4 SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql"
+
+# 7. Optional: Email integration (2 min)
+snowsql -f "scripts/3. email integration.sql"
+
+# 8. Run automated tests (2 min)
+snowsql -f "scripts/TEST_ALL_PHASES.sql" -o output_format=table
 ```
 
-**That's it!** 🎉 Your AI security agent is ready.
+**That's it!** 🎉 Your comprehensive monitoring system is ready.
 
 ---
 
 ## 💬 Example Questions
 
-### 🔴 Critical Security
+### 🎯 **Comprehensive Health Checks (Generalist Agent)**
 ```
-"Show me network policy violations in the last 24 hours"
-"Which external endpoints were called with large data transfers?"
-"Are there any ACCOUNTADMIN grants in the last week?"
-"Show failed login attempts by IP address"
-```
-
-### 🟡 Security Monitoring
-```
-"Which users accessed our customer PII tables today?"
-"Show me stale accounts that haven't logged in for 90 days"
-"What external API calls failed this week?"
-"Verify masking policy coverage on sensitive tables"
+"What's my overall Snowflake account health?"
+"Show me total costs across all services (warehouses, tasks, pipes, clustering)"
+"Which users have both failed queries and failed logins?"
+"What's my MFA adoption rate?"
+"Show me warehouse queue metrics - any performance issues?"
 ```
 
-### ⚡ Performance
+### 💰 **Cost & Performance (Specialist Agent)**
 ```
-"What are my top 10 slowest queries today?"
-"Which queries are spilling to disk?"
-"Show queries with poor cache hit rates"
-"Which tables should I add clustering keys to?"
-```
-
-### 💰 Cost Optimization
-```
-"Why did my costs spike yesterday?"
-"Which warehouses are most expensive this month?"
-"Show me my most expensive queries"
-"What's my automatic clustering cost vs benefit?"
+"What are the most expensive queries by cloud services credits?"
+"Which warehouses are consuming the most credits?"
+"Show me queries that failed in the last hour"
+"What's my storage growth trend over the last 30 days?"
+"Which databases use the most storage?"
 ```
 
-### 📧 Reports
+### 🔒 **Security & Authentication (Specialist Agent)**
 ```
-"Send me a daily security summary report"
-"Email me the top 5 cost optimization opportunities"
+"Show me failed login attempts"
+"What's my login success rate?"
+"Which IP addresses have failed login attempts?"
+"How many users have MFA enabled?"
+"Show me users without MFA"
+```
+
+### 📊 **Advanced Operations (Generalist Agent)**
+```
+"How much data has Snowpipe loaded this month?"
+"What are my automatic clustering costs?"
+"Show me materialized view refresh credits"
+"What's my replication cost trend?"
+"Which warehouses have the most queueing issues?"
+"What's my daily billable credit consumption?"
+```
+
+### 🔗 **Cross-Domain Analysis (Generalist Agent)**
+```
+"Users with high costs + failed logins"
+"Show expensive queries accessing masked data"
+"Which users without MFA are running expensive queries?"
+"How does my storage growth correlate with query performance?"
+"What's my total operational cost including all services?"
 ```
 
 ---
@@ -116,386 +202,501 @@ USE ROLE cortex_role;
 
 ```
 cortex-snowflake-account-info-lab/
-├── README.md                               ⬅️ You are here
-├── DEPLOYMENT_GUIDE.md                     # Step-by-step deployment
-├── SECURITY_USE_CASES.md                   # 15+ detailed security scenarios
+├── README.md                                       ⬅️ You are here
+├── SECURITY_AGENT_ROADMAP.md                       📋 Future enhancements
+├── docs/                                           📚 Documentation archive
 │
 ├── scripts/
-│   ├── 1. lab foundations.sql              # Foundation setup
-│   ├── 2. SNOWFLAKE_INTELLIGENCE.TOOLS schema.sql  # Basic semantic view
-│   ├── 2.1 ENHANCED_SECURITY_DIAGNOSTICS_SVW.sql   # ⭐ Enhanced semantic view (50+ tables)
-│   ├── 3. email integration.sql            # Email notification setup
-│   ├── 4. accept marketplace terms.sql     # Snowflake documentation access
-│   ├── 5. agent creation.SQL               # Basic agent
-│   └── 5.1 ENHANCED_SECURITY_AGENT.sql     # ⭐ Enhanced security agent
+│   ├── 1. lab foundations.sql                      🏗️  Foundation setup
+│   ├── 2. SNOWFLAKE_INTELLIGENCE.TOOLS schema.sql  📦 Schema creation
+│   ├── 2.1A FLATTENED_ACCESS_HISTORY_VIEWS.sql     🔧 Helper views
+│   │
+│   ├── 2.2 COST_PERFORMANCE_SVW_SPECIALIST.sql     💰 Cost specialist semantic view
+│   ├── 5.2 COST_PERFORMANCE_AGENT_SPECIALIST.sql   🤖 Cost specialist agent
+│   │
+│   ├── 2.3 SECURITY_MONITORING_SVW_SPECIALIST.sql  🔒 Security specialist semantic view
+│   ├── 5.3 SECURITY_MONITORING_AGENT_SPECIALIST.sql 🤖 Security specialist agent
+│   │
+│   ├── 2.4 SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql ⭐ Generalist semantic view (ALL 6 PHASES)
+│   ├── 5.4 SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql ⭐ Generalist agent (20 tables, 94 metrics)
+│   │
+│   ├── 3. email integration.sql                    📧 Email notifications
+│   ├── 4. accept marketplace terms.sql             📄 Documentation access
+│   │
+│   ├── CHECK_AVAILABLE_COLUMNS.sql                 🔍 Diagnostic utility
+│   └── TEST_ALL_PHASES.sql                         ✅ Automated test suite (27 tests)
 ```
 
 ---
 
-## 🔍 What's Inside
+## 🏗️ Architecture
 
-### Enhanced Semantic View (50+ Tables)
-
-**Security Tables:**
-- `LOGIN_HISTORY` - Authentication events
-- `SESSIONS` - Network policy enforcement (**IS_CLIENT_IP_BLOCKED**)
-- `ACCESS_HISTORY` - Data access tracking
-- `EXTERNAL_ACCESS_HISTORY` - **External endpoint monitoring** 🆕
-- `GRANTS_TO_USERS/ROLES` - Privilege tracking
-- `POLICY_REFERENCES` - Security policy coverage
-- `USERS/ROLES` - Account lifecycle
-- `MASKING_POLICIES` - PII protection
-- `ROW_ACCESS_POLICIES` - Row-level security
-- `PASSWORD_POLICIES` - Auth requirements
-- `STAGES` - External storage access
-- `FUNCTIONS` - External function security
-
-**Performance Tables:**
-- `QUERY_HISTORY` - Query execution metrics
-- `QUERY_ATTRIBUTION_HISTORY` - Credit attribution
-- `WAREHOUSE_METERING_HISTORY` - Warehouse costs
-- `AUTOMATIC_CLUSTERING_HISTORY` - Clustering costs
-- `MATERIALIZED_VIEW_REFRESH_HISTORY` - MV costs
-
-**Storage Tables:**
-- `TABLE_STORAGE_METRICS` - Table-level storage
-- `DATABASE_STORAGE_USAGE_HISTORY` - DB-level storage
-
-**Operational Tables:**
-- `TASK_HISTORY` - Scheduled task execution
-- `COPY_HISTORY` - Data loading
-- `PIPE_USAGE_HISTORY` - Snowpipe operations
-- `REPLICATION_USAGE_HISTORY` - Replication costs
-- `DATA_TRANSFER_HISTORY` - Cross-region/cloud transfers
-
-**Total:** 150+ metrics (facts) and 200+ attributes (dimensions)
-
----
-
-## 🎯 Key Use Cases
-
-### 1️⃣ External Endpoint Security Monitoring
-**Problem:** Need to track all outbound API calls and prevent data exfiltration
-
-**Solution:** Query `EXTERNAL_ACCESS_HISTORY` to monitor:
-- Which external endpoints are being called
-- How much data is being transferred
-- Who is making the calls
-- Failed external calls indicating issues
-
-**Sample Questions:**
-- "Show external endpoints called this week"
-- "Which user sent the most data externally?"
-- "Alert on data transfers to non-approved domains"
-
----
-
-### 2️⃣ Network Policy Violation Detection
-**Problem:** Unauthorized connection attempts from blocked IPs
-
-**Solution:** Monitor `SESSIONS.IS_CLIENT_IP_BLOCKED_BY_NETWORK_POLICY`
-- Real-time blocked connection tracking
-- IP address analysis
-- User account validation
-- Geographic anomaly detection
-
-**Sample Questions:**
-- "Show blocked connection attempts today"
-- "Which IPs are repeatedly trying to connect?"
-- "Are there network policy violations by trusted users?"
-
----
-
-### 3️⃣ Privilege Escalation Detection
-**Problem:** Detect unauthorized privilege grants and insider threats
-
-**Solution:** Monitor `GRANTS_TO_USERS/ROLES` for:
-- ACCOUNTADMIN grants
-- OWNERSHIP transfers
-- After-hours privilege changes
-- Direct user grants (vs role-based)
-
-**Sample Questions:**
-- "Show any ACCOUNTADMIN grants in last 30 days"
-- "Who granted OWNERSHIP recently?"
-- "Track privilege changes for sensitive databases"
-
----
-
-### 4️⃣ Sensitive Data Access Auditing
-**Problem:** Compliance requirements for PII/PHI access tracking
-
-**Solution:** Query `ACCESS_HISTORY` to monitor:
-- Who accessed sensitive tables
-- What data was queried
-- Which security policies were applied
-- Large data exports
-
-**Sample Questions:**
-- "Who accessed customer PII tables today?"
-- "Show access to financial data by external consultants"
-- "Track queries returning >100K rows from sensitive tables"
-
----
-
-### 5️⃣ Cost Spike Analysis
-**Problem:** Unexpected credit consumption increases
-
-**Solution:** Analyze `WAREHOUSE_METERING_HISTORY`, `TASK_HISTORY`, `AUTOMATIC_CLUSTERING_HISTORY`
-- Credit consumption by warehouse
-- Task and clustering overhead
-- Query cost attribution
-- Warehouse efficiency comparison
-
-**Sample Questions:**
-- "Why did costs spike yesterday?"
-- "Which warehouse is most expensive?"
-- "Show my most expensive queries"
-
----
-
-## 📊 Architecture
+### **Triple-Agent Design**
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     USER QUESTIONS                          │
-│  "Show network policy violations in last 24 hours"          │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│             SNOWFLAKE CORTEX AGENT                          │
-│  - Natural language understanding                           │
-│  - Query generation                                         │
-│  - Security risk assessment                                 │
-│  - Recommendation engine                                    │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│        ENHANCED SECURITY SEMANTIC VIEW                      │
-│  - 50+ Account Usage tables                                 │
-│  - 150+ metrics (facts)                                     │
-│  - 200+ attributes (dimensions)                             │
-│  - Pre-built security queries                               │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│           SNOWFLAKE ACCOUNT USAGE SCHEMA                    │
-│  - LOGIN_HISTORY, SESSIONS, ACCESS_HISTORY                  │
-│  - EXTERNAL_ACCESS_HISTORY (endpoint monitoring)            │
-│  - QUERY_HISTORY, WAREHOUSE_METERING                        │
-│  - GRANTS, POLICIES, USERS, ROLES                           │
-└─────────────────────────────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  OUTPUT OPTIONS                             │
-│  ├─ Formatted response with recommendations                 │
-│  ├─ HTML email reports                                      │
-│  └─ Integration with SIEM/SOAR tools                        │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                       USER QUESTIONS                            │
+│  Natural language queries about any operational aspect          │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+           ┌─────────────┴──────────────┐
+           │                            │
+    ┌──────▼──────┐              ┌─────▼──────┐
+    │ SPECIALIST  │              │ GENERALIST │
+    │   AGENTS    │              │   AGENT    │
+    │             │              │            │
+    │ • Cost/Perf │              │ • All 6    │
+    │ • Security  │              │   Phases   │
+    │             │              │ • Cross-   │
+    │ Fast, Focus │              │   Domain   │
+    └──────┬──────┘              └─────┬──────┘
+           │                           │
+           └─────────────┬─────────────┘
+                         ▼
+         ┌───────────────────────────────┐
+         │   SEMANTIC VIEWS              │
+         │   • 20 ACCOUNT_USAGE tables   │
+         │   • 35 dimensions             │
+         │   • 94 metrics                │
+         │   • Pre-built queries         │
+         └───────────────┬───────────────┘
+                         ▼
+         ┌───────────────────────────────┐
+         │   SNOWFLAKE ACCOUNT_USAGE     │
+         │   • Historical data (365 days)│
+         │   • 45min-3hr latency         │
+         │   • Complete audit trail      │
+         └───────────────────────────────┘
 ```
+
+### **Data Flow**
+
+1. **User asks natural language question**
+2. **Cortex AI Agent interprets intent**
+3. **Semantic View translates to SQL**
+4. **ACCOUNT_USAGE provides data**
+5. **Agent analyzes and provides insights**
+6. **Optional: Email alerts triggered**
 
 ---
 
-## 🛡️ Security Benefits
+## 🔑 Key Features
 
-### Before (Traditional Monitoring)
-- ❌ Manual SQL queries for security events
-- ❌ Delayed threat detection
-- ❌ Limited visibility into external access
-- ❌ Time-consuming privilege audits
-- ❌ Reactive incident response
+### 🎯 **Intelligent Question Routing**
+- **Simple queries** → Specialist agents (faster)
+- **Complex cross-domain** → Generalist agent (comprehensive)
+- **AI automatically chooses best approach**
 
-### After (AI-Powered Monitoring)
-- ✅ Natural language security queries
-- ✅ Real-time threat detection
-- ✅ Comprehensive external endpoint tracking
-- ✅ Automated privilege escalation alerts
-- ✅ Proactive security monitoring
-- ✅ AI-powered recommendations
-- ✅ Automated email alerts
+### 📊 **Comprehensive Metrics**
+
+**Query & Performance:**
+- Execution time, compilation, queueing
+- Bytes scanned/written/spilled
+- Cache efficiency, partition pruning
+- 50+ performance metrics
+
+**Security & Auth:**
+- Login success/failure rates
+- MFA adoption tracking
+- Client IP/type analysis
+- Authentication patterns
+
+**Cost & Storage:**
+- Warehouse credit consumption
+- Storage growth (table/stage/failsafe)
+- Database-level breakdown
+- Cost per query/user/warehouse
+
+**Governance:**
+- User/role management
+- Grant distribution
+- MFA compliance
+- Permission auditing
+
+**Operations:**
+- Task success rates
+- Serverless credits
+- Snowpipe throughput
+- Clustering efficiency
+- MV refresh costs
+- Replication tracking
+- Data transfer monitoring
+- Warehouse queueing
+
+### 🔍 **Cross-Domain Analytics**
+
+Unique ability to correlate across domains:
+- **Security + Cost:** "Users with failed logins and expensive queries"
+- **Performance + Storage:** "Storage growth vs query performance"
+- **Cost + Operations:** "Total credits across all services"
+- **Security + Governance:** "Users without MFA by role"
+
+### ✅ **Automated Testing**
+
+27 comprehensive tests covering:
+- Data availability checks
+- Metric calculations
+- Cross-domain queries
+- Agent/semantic view validation
 
 ---
 
 ## 💡 Best Practices
 
-### Security
-1. **Enable Network Policies** - Whitelist authorized IPs
-2. **Monitor External Access Daily** - Review endpoint calls
-3. **Alert on Critical Events** - Automate ACCOUNTADMIN grant notifications
-4. **Regular Access Reviews** - Audit privileges quarterly
-5. **Apply Masking Policies** - Protect PII/PHI columns
-6. **Track Stale Accounts** - Disable inactive users
-7. **Enforce MFA** - Require multi-factor authentication
+### **When to Use Each Agent**
 
-### Performance
-1. **Monitor Spilling** - Address memory issues promptly
-2. **Optimize Cache Usage** - Tune warehouse configurations
-3. **Review Slow Queries** - Regular performance analysis
-4. **Partition Management** - Ensure efficient pruning
-5. **Warehouse Sizing** - Right-size based on workload
+| Scenario | Agent | Why |
+|----------|-------|-----|
+| Quick cost check | Cost/Performance Specialist | Faster, focused |
+| Security audit | Security Specialist | Dedicated security metrics |
+| Overall health | Generalist | Comprehensive view |
+| Cross-domain analysis | Generalist | Correlates multiple areas |
+| Complex troubleshooting | Generalist | Access to all data |
 
-### Cost
-1. **Set Cost Alerts** - Monitor unexpected spikes
-2. **Warehouse Efficiency** - Compare credit per query
-3. **Task Optimization** - Review scheduled task frequency
-4. **Storage Cleanup** - Manage Time Travel retention
-5. **Clustering ROI** - Validate automatic clustering benefit
+### **Query Optimization**
 
----
+1. **Be Specific:** "Show me expensive queries in PROD_WH" vs "Show me queries"
+2. **Time Boundaries:** Include time ranges for faster results
+3. **Use Specialists:** For single-domain questions
+4. **Leverage Verified Queries:** Use built-in examples as templates
 
-## 📈 Metrics & KPIs
+### **Security Best Practices**
 
-Track your security and performance posture:
+1. **Monitor Daily:**
+   - Failed login attempts
+   - MFA adoption rate
+   - Privilege escalation attempts
 
-### Security KPIs
-- Network policy violations per day
-- Failed login attempt rate
-- Time to detect privilege escalation
-- Sensitive data access anomalies
-- External endpoint call volume
-- Policy coverage percentage
-- Stale account count
+2. **Set Alerts:**
+   - ACCOUNTADMIN grants
+   - Repeated failed logins
+   - Unusual access patterns
 
-### Performance KPIs
-- Average query execution time
-- Cache hit rate percentage
-- Queries with memory spilling
-- Compilation time > 1 second
-- Partition pruning efficiency
+3. **Regular Reviews:**
+   - User access quarterly
+   - Role assignments monthly
+   - Policy coverage weekly
 
-### Cost KPIs
-- Daily credit consumption trend
-- Cost per query (by warehouse)
-- Storage growth rate
-- Clustering cost vs query improvement
-- Task execution costs
+### **Cost Optimization**
 
----
+1. **Track Key Metrics:**
+   - Daily credit consumption
+   - Warehouse efficiency
+   - Storage growth rate
+   - Clustering ROI
 
-## 🔧 Customization
+2. **Identify Waste:**
+   - Idle warehouses
+   - Excessive spilling
+   - Unnecessary clustering
+   - Redundant tasks
 
-### Add Custom Security Rules
-Edit `5.1 ENHANCED_SECURITY_AGENT.sql`:
-```json
-"sample_questions": [
-    { "question": "Monitor access to CUSTOMER_CREDIT_CARDS table" },
-    { "question": "Alert on API calls to external-domain.com" }
-]
-```
-
-### Configure Email Distribution
-Update email integration with your lists:
-```sql
--- Security alerts
-CALL SEND_EMAIL('security-team@company.com', 'subject', 'body');
-
--- Cost reports  
-CALL SEND_EMAIL('finance-team@company.com', 'subject', 'body');
-```
-
-### Adjust Query Timeout
-For large data volumes:
-```json
-"query_timeout": 180  // Increase from 120 seconds
-```
+3. **Right-Size Resources:**
+   - Warehouse sizing
+   - Storage retention
+   - Task frequency
+   - Clustering policies
 
 ---
 
 ## 📚 Documentation
 
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Step-by-step setup instructions
-- **[SECURITY_USE_CASES.md](SECURITY_USE_CASES.md)** - 15+ detailed security scenarios
+- **[SECURITY_AGENT_ROADMAP.md](SECURITY_AGENT_ROADMAP.md)** - Future enhancements and roadmap
+- **[scripts/TEST_ALL_PHASES.sql](scripts/TEST_ALL_PHASES.sql)** - Automated test suite
 - [Snowflake Cortex AI Documentation](https://docs.snowflake.com/en/user-guide/ml-powered-features)
-- [Account Usage Views Reference](https://docs.snowflake.com/en/sql-reference/account-usage)
+- [Account Usage Schema Reference](https://docs.snowflake.com/en/sql-reference/account-usage)
+- [Semantic Views Guide](https://docs.snowflake.com/en/user-guide/views-semantic)
+
+---
+
+## 🧪 Testing & Validation
+
+### Run Automated Tests
+
+```bash
+# Execute all 27 tests
+snowsql -f scripts/TEST_ALL_PHASES.sql -o output_format=table
+
+# Tests include:
+# ✅ Phase 1: Query performance (4 tests)
+# ✅ Phase 2: Security & auth (4 tests)
+# ✅ Phase 3: Cost & storage (3 tests)
+# ✅ Phase 4: Governance (3 tests)
+# ✅ Phase 5: Task operations (2 tests)
+# ✅ Phase 6: Advanced ops (7 tests)
+# ✅ Cross-domain (2 tests)
+# ✅ System validation (2 tests)
+```
+
+### Manual Testing
+
+```sql
+-- Test Generalist Agent
+USE ROLE cortex_role;
+SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+    'What is my overall account health?'
+);
+
+-- Test Cost Specialist
+SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.COST_PERFORMANCE_AGENT(
+    'Show me my most expensive queries'
+);
+
+-- Test Security Specialist
+SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SECURITY_MONITORING_AGENT(
+    'What is my MFA adoption rate?'
+);
+```
+
+---
+
+## 🚧 Roadmap & Future Enhancements
+
+See **[SECURITY_AGENT_ROADMAP.md](SECURITY_AGENT_ROADMAP.md)** for detailed plans including:
+
+### **Phase 7: Enhanced Security Agent**
+- ACCESS_HISTORY integration
+- POLICY_REFERENCES tracking
+- SESSIONS monitoring
+- Network policy enforcement
+- Data classification support
+
+### **Phase 8: Advanced Features**
+- CORTEX_* usage tables (AI/ML costs)
+- SEARCH_OPTIMIZATION_HISTORY
+- COPY_HISTORY
+- Real-time MONITORING schema integration
+- ORGANIZATION_USAGE cross-account visibility
+
+### **Phase 9: Enterprise Features**
+- Custom security rules
+- SIEM/SOAR integration
+- Advanced alerting
+- Compliance reporting
+- Multi-account management
+
+---
+
+## 🛠️ Customization
+
+### Add Custom Questions
+
+Edit agent SQL files to include your specific use cases:
+
+```json
+"sample_questions": [
+    { "question": "Monitor access to CUSTOMER_DATA table" },
+    { "question": "Alert on queries to PROD_DB by contractors" },
+    { "question": "Track storage growth in ANALYTICS_DB" }
+]
+```
+
+### Adjust Query Timeout
+
+For large environments:
+
+```json
+"execution_environment": {
+    "type": "warehouse",
+    "warehouse": "CORTEX_WH",
+    "query_timeout": 300  // Increase from 180 seconds
+}
+```
+
+### Configure Email Alerts
+
+```sql
+-- Security alerts
+CALL SNOWFLAKE_INTELLIGENCE.TOOLS.SEND_EMAIL(
+    'security-team@company.com',
+    'Security Alert: Failed Logins',
+    '<html>Alert details...</html>'
+);
+```
+
+---
+
+## 📊 Monitoring & Maintenance
+
+### Data Latency
+
+| View Category | Latency | Use Case |
+|---------------|---------|----------|
+| QUERY_HISTORY | 45 min | Near real-time performance |
+| LOGIN_HISTORY | 2 hours | Recent security events |
+| WAREHOUSE_METERING | 3 hours | Cost tracking |
+| STORAGE_USAGE | 2 hours | Storage monitoring |
+| DAILY_METERING | 6 hours | Billing reconciliation |
+
+### Warehouse Sizing
+
+Recommended warehouse for Cortex agents:
+
+```sql
+-- For small environments (<100 queries/day)
+CREATE WAREHOUSE CORTEX_WH
+    WAREHOUSE_SIZE = XSMALL;
+
+-- For medium environments (100-1000 queries/day)
+CREATE WAREHOUSE CORTEX_WH
+    WAREHOUSE_SIZE = SMALL;
+
+-- For large environments (>1000 queries/day)
+CREATE WAREHOUSE CORTEX_WH
+    WAREHOUSE_SIZE = MEDIUM;
+```
 
 ---
 
 ## 🤝 Contributing
 
 We welcome contributions! Areas for enhancement:
-- Additional security use cases
-- Custom alerting rules
-- Integration with SIEM tools
-- Performance optimization patterns
-- Cost optimization recommendations
+
+### High Priority
+- [ ] Additional security use cases
+- [ ] SIEM integration patterns
+- [ ] Custom alerting templates
+- [ ] Performance optimization playbooks
+
+### Medium Priority
+- [ ] Cost optimization rules engine
+- [ ] Compliance reporting templates
+- [ ] Multi-region deployment guides
+- [ ] Advanced visualization examples
+
+### Low Priority
+- [ ] Additional language translations
+- [ ] Custom dashboards
+- [ ] Integration examples
 
 ---
 
-## 📝 License
+## 🆘 Troubleshooting
+
+### Common Issues
+
+**Problem:** "Semantic view not found"
+```sql
+-- Solution: Verify deployment
+SHOW SEMANTIC VIEWS LIKE 'SNOWFLAKE_MAINTENANCE_SVW' 
+    IN SCHEMA SNOWFLAKE_INTELLIGENCE.TOOLS;
+```
+
+**Problem:** "Permission denied"
+```sql
+-- Solution: Grant required privileges
+USE ROLE ACCOUNTADMIN;
+GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO ROLE cortex_role;
+```
+
+**Problem:** "Query timeout"
+```sql
+-- Solution: Increase warehouse size or timeout
+ALTER WAREHOUSE CORTEX_WH SET WAREHOUSE_SIZE = MEDIUM;
+```
+
+**Problem:** "No data returned"
+- **Cause:** Data latency (45min-6hr depending on view)
+- **Solution:** Wait for data propagation or query earlier time periods
+
+---
+
+## 📈 Success Metrics
+
+### Track Your ROI
+
+**Security Improvements:**
+- ⏱️ Time to detect threats (target: <1 hour)
+- 🎯 Security incidents prevented
+- 📊 MFA adoption rate (target: >90%)
+- 🔒 Policy coverage percentage (target: >95%)
+
+**Performance Gains:**
+- ⚡ Average query time reduction
+- 💾 Queries with spilling (target: <5%)
+- 🎯 Cache hit rate (target: >80%)
+- 📈 Query success rate (target: >99%)
+
+**Cost Savings:**
+- 💰 Monthly credit reduction
+- 📉 Warehouse efficiency improvement
+- 🗄️ Storage optimization savings
+- ⏰ Operational time saved
+
+---
+
+## 📞 Support
+
+### Getting Help
+
+1. **Check Documentation:**
+   - Review this README
+   - Check SECURITY_AGENT_ROADMAP.md
+   - Run TEST_ALL_PHASES.sql for diagnostics
+
+2. **Common Solutions:**
+   - Verify privileges (IMPORTED PRIVILEGES on SNOWFLAKE)
+   - Check warehouse status (must be running)
+   - Confirm Cortex availability in your region
+   - Review data latency expectations
+
+3. **Snowflake Support:**
+   - Official documentation: [docs.snowflake.com](https://docs.snowflake.com)
+   - Support portal: [community.snowflake.com](https://community.snowflake.com)
+
+---
+
+## 🎉 Acknowledgments
+
+Built with comprehensive understanding of:
+- Snowflake ACCOUNT_USAGE schema
+- Cortex AI capabilities
+- Semantic view best practices
+- Real-world operational requirements
+
+**Special Features:**
+- ✅ All 6 phases complete
+- ✅ 20 ACCOUNT_USAGE tables
+- ✅ 94 metrics, 35 dimensions
+- ✅ 27 automated tests
+- ✅ Triple-agent architecture
+- ✅ Production-ready
+
+---
+
+## 📜 License
 
 This project is provided as-is for educational and operational purposes.
 
 ---
 
-## 🆘 Support
+## 🌟 Get Started Now!
 
-### Issues & Questions
-1. Check [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) troubleshooting section
-2. Review [SECURITY_USE_CASES.md](SECURITY_USE_CASES.md) for examples
-3. Consult Snowflake documentation
-4. Contact Snowflake support for platform issues
+```bash
+# 1. Clone repository
+git clone <repository-url>
 
-### Common Issues
-- **Data Latency** - Account Usage views have 45min-3hr delay
-- **Permissions** - Ensure cortex_role has necessary grants
-- **Timeout** - Increase warehouse size or query timeout
-- **Email** - Verify notification integration is enabled
+# 2. Deploy in 15 minutes
+cd cortex-snowflake-account-info-lab
+snowsql -f scripts/1.\ lab\ foundations.sql
+snowsql -f scripts/2.\ SNOWFLAKE_INTELLIGENCE.TOOLS\ schema.sql
+snowsql -f scripts/2.4\ SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql
+snowsql -f scripts/5.4\ SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql
 
----
+# 3. Run tests
+snowsql -f scripts/TEST_ALL_PHASES.sql
 
-## 🎉 Success Stories
-
-### Security Wins
-- "Detected privilege escalation attempt within 1 hour"
-- "Identified data exfiltration via external endpoint monitoring"
-- "Reduced stale accounts by 80% in first month"
-- "Automated network policy violation alerts"
-
-### Performance Wins
-- "Identified and fixed queries causing 3x warehouse costs"
-- "Reduced query spilling by optimizing warehouse sizing"
-- "Improved cache hit rate from 40% to 85%"
-
-### Cost Wins
-- "Saved 30% on warehouse costs through right-sizing"
-- "Eliminated unnecessary clustering on low-query tables"
-- "Optimized task scheduling to reduce off-hours costs"
-
----
-
-## 🚀 Get Started Now!
-
-1. **Clone this repository**
-2. **Follow [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)**
-3. **Deploy in 15 minutes**
-4. **Start asking security questions!**
-
-```sql
-USE ROLE cortex_role;
--- Deploy all 5 scripts in order
--- Start monitoring your Snowflake environment with AI! 🎉
+# 4. Start monitoring!
+# Ask: "What's my overall Snowflake account health?"
 ```
 
 ---
 
-## 📞 Contact
+**Built with ❄️ for Complete Snowflake Operations Excellence**
 
-For questions, feedback, or support:
-- Open an issue in this repository
-- Contact Snowflake support
-- Review Snowflake documentation
+[![Star this repo](https://img.shields.io/github/stars/username/repo?style=social)]() 
 
 ---
 
-**Built with ❄️ by Snowflake Users, for Snowflake Security & Performance Excellence**
-
----
-
-## ⭐ Star This Repo!
-
-If this helps secure and optimize your Snowflake environment, please star this repository!
-
+*Last Updated: November 2024 - All 6 Phases Complete*
