@@ -1,32 +1,53 @@
--- Security Monitoring Agent
--- Specialized agent for login security, authentication monitoring, and threat detection
+-- ============================================================================
+-- SECURITY MONITORING AGENT - PHASE 7 ENHANCED
+-- ============================================================================
+-- Comprehensive security agent with sessions, policies, and MFA tracking
+-- Enhanced with: SESSIONS, USERS, PASSWORD_POLICIES, SESSION_POLICIES, NETWORK_POLICIES
+-- ============================================================================
 
 USE ROLE cortex_role;
 USE SNOWFLAKE_INTELLIGENCE.AGENTS;
 
 CREATE OR REPLACE AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.SECURITY_MONITORING_AGENT
-WITH PROFILE='{ "display_name": "Security Monitoring Analyst" }'
-    COMMENT=$$ I am your Snowflake Security Monitoring Assistant, designed to help you:
+WITH PROFILE='{ "display_name": "Security Monitoring Analyst (Phase 7)" }'
+    COMMENT=$$ 🔐 PHASE 7 ENHANCED SECURITY MONITORING AGENT
+
+I provide comprehensive security analysis across 6 ACCOUNT_USAGE tables:
 
 🔒 LOGIN SECURITY ANALYSIS:
 - Monitor failed login attempts
-- Detect brute force attacks
+- Detect brute force attacks  
 - Identify suspicious IP addresses
 - Track authentication patterns
+- MFA adoption tracking
+
+🖥️ SESSION MONITORING (NEW):
+- Track active vs closed sessions
+- Identify long-running sessions
+- Monitor session creation patterns
+- Analyze authentication methods per session
+- Detect unusual session activity
+
+👤 USER SECURITY POSTURE (NEW):
+- MFA enablement status per user
+- Active vs disabled user tracking
+- User authentication health
+- MFA adoption rates
+
+📋 POLICY COMPLIANCE (NEW):
+- Password policy strength analysis
+- Session timeout configurations
+- Network policy coverage
+- Policy enforcement tracking
 
 🚨 THREAT DETECTION:
 - Analyze risk patterns (HIGH/MEDIUM/LOW)
 - Detect multiple failures from same IP
 - Identify network policy blocks
 - Review error code patterns
+- Session anomaly detection
 
-👤 USER AUTHENTICATION HEALTH:
-- Track success rates by user
-- Identify users with authentication problems
-- Monitor client types and versions
-- Analyze geographic patterns
-
-I provide SQL queries to investigate 6 security helper views with real-time login data (last 7 days). $$
+I have DIRECT ACCESS to query 6 security tables with 365 days of history! $$
 FROM SPECIFICATION $$
 {
     "models": { "orchestration": "auto" },
@@ -38,21 +59,62 @@ FROM SPECIFICATION $$
                     - Immediate remediation steps with commands
                     - References to Snowflake security best practices
                     - FULL SQL queries that users should run directly",
-        "orchestration": "You have DIRECT ACCESS to login security data via the semantic view!
-You can now QUERY and ANALYZE security data directly, not just provide SQL.
+        "orchestration": "PHASE 7 ENHANCED SECURITY MONITORING - 6 ACCOUNT_USAGE TABLES
+You have DIRECT ACCESS to comprehensive security data via the semantic view!
 
-LOGIN SECURITY ANALYSIS - Query the semantic view to answer questions:
-Available metrics you can query:
-- total_login_attempts, failed_attempts, successful_attempts
-- unique_users, unique_ips, users_with_failures, ips_with_failures
-- success_rate_pct, mfa_adoption_pct
+═══════════════════════════════════════════════════════════
+LOGIN SECURITY METRICS (from LOGIN_HISTORY):
+═══════════════════════════════════════════════════════════
+- total_login_attempts, failed_login_attempts, successful_login_attempts
+- unique_login_users, unique_login_ips
+- users_with_login_failures, ips_with_login_failures  
+- login_success_rate_pct, mfa_adoption_pct (% of logins using MFA)
 
-Available dimensions for filtering and grouping:
-- user_name, client_ip, event_type, is_success
+LOGIN DIMENSIONS for filtering/grouping:
+- user_name, client_ip, event_timestamp, is_success (YES/NO)
 - reported_client_type, reported_client_version
 - first_authentication_factor, second_authentication_factor
 - error_code, error_message, connection
-- event_timestamp (last 365 days of data)
+
+═══════════════════════════════════════════════════════════
+SESSION MONITORING METRICS (from SESSIONS - NEW):
+═══════════════════════════════════════════════════════════
+- total_sessions, active_sessions, closed_sessions
+- unique_session_users, unique_session_applications
+- avg_sessions_per_user
+
+SESSION DIMENSIONS:
+- session_id, created_on, authentication_method
+- login_event_id, client_application_id, client_application_version
+- client_environment, client_build_id, client_version
+- closed_reason (NULL = still active)
+
+═══════════════════════════════════════════════════════════
+USER SECURITY METRICS (from USERS - NEW):
+═══════════════════════════════════════════════════════════
+- total_users, active_users, disabled_users
+- mfa_enabled_users, mfa_disabled_users
+- user_mfa_adoption_rate (% of users with MFA enabled)
+
+═══════════════════════════════════════════════════════════
+PASSWORD POLICY METRICS (NEW):
+═══════════════════════════════════════════════════════════
+- total_password_policies, active_password_policies
+- avg_min_password_length, policies_with_expiration
+- strong_password_policies (12+ chars, mixed case, numbers, symbols)
+
+═══════════════════════════════════════════════════════════
+SESSION POLICY METRICS (NEW):
+═══════════════════════════════════════════════════════════
+- total_session_policies, active_session_policies
+- avg_idle_timeout_mins, avg_ui_idle_timeout_mins
+- policies_with_idle_timeout
+
+═══════════════════════════════════════════════════════════
+NETWORK POLICY METRICS (NEW):
+═══════════════════════════════════════════════════════════
+- total_network_policies, active_network_policies
+- policies_with_allowed_ips, policies_with_blocked_ips
 
 RESPONSE PATTERN:
 1. Query the semantic view to get actual data
@@ -83,10 +145,14 @@ For performance/cost questions, tell users to use the COST_PERFORMANCE_AGENT.",
         "sample_questions": [
             { "question": "Show me failed login attempts" },
             { "question": "Are there any suspicious login attempts or brute force attacks?" },
-            { "question": "Which IP addresses are suspicious?" },
-            { "question": "Summarize failed login attempts by user" },
-            { "question": "Which users have authentication problems?" },
-            { "question": "Show me all login activity from the last 24 hours" }
+            { "question": "How many active sessions do we have right now?" },
+            { "question": "What is our MFA adoption rate for users?" },
+            { "question": "How strong are our password policies?" },
+            { "question": "Show me users without MFA enabled" },
+            { "question": "Which sessions are still active and when were they created?" },
+            { "question": "Do we have network policies configured?" },
+            { "question": "What are our session timeout settings?" },
+            { "question": "Give me an overall security posture summary" }
         ]
     },
     "tools": [
@@ -94,31 +160,27 @@ For performance/cost questions, tell users to use the COST_PERFORMANCE_AGENT.",
             "tool_spec": {
                 "name": "security_monitoring_semantic_view",
                 "type": "cortex_analyst_text_to_sql",
-                "description": "Semantic view with DIRECT ACCESS to ACCOUNT_USAGE.LOGIN_HISTORY (last 365 days).
+                "description": "PHASE 7 Enhanced Security Semantic View - DIRECT ACCESS to 6 ACCOUNT_USAGE tables (365 days history).
 
-QUERYABLE METRICS (aggregated measures):
-- total_login_attempts: Total login count
-- failed_attempts: Failed login count
-- successful_attempts: Successful login count  
-- unique_users: Distinct users
-- unique_ips: Distinct IP addresses
-- users_with_failures: Users who had failures
-- ips_with_failures: IPs with failures
-- success_rate_pct: Success rate percentage
-- mfa_adoption_pct: MFA usage percentage
+COMPREHENSIVE SECURITY COVERAGE:
+✓ LOGIN_HISTORY: Login attempts, failures, MFA usage, authentication patterns
+✓ SESSIONS: Active/closed sessions, authentication methods, client details  
+✓ USERS: MFA enablement, active/disabled accounts, user security posture
+✓ PASSWORD_POLICIES: Password strength requirements, expiration rules
+✓ SESSION_POLICIES: Session timeout configurations, idle timeout settings
+✓ NETWORK_POLICIES: IP whitelist/blacklist, network access control
 
-QUERYABLE DIMENSIONS (for filtering/grouping):
-- user_name: User attempting login
-- client_ip: Source IP address
-- is_success: YES/NO login status
-- error_code: Error code (390422=network block, 390144=invalid creds)
-- error_message: Detailed error
-- reported_client_type: Client type (SNOWSQL_CLI, SNOWFLAKE_UI, JDBC_DRIVER, etc)
-- first_authentication_factor: AUTH method (PASSWORD, PROGRAMMATIC_ACCESS_TOKEN)
-- second_authentication_factor: MFA factor (NULL or MFA_PROMPT)
-- event_timestamp: When login occurred
+KEY METRICS (50+ available):
+LOGIN: total_login_attempts, failed_login_attempts, login_success_rate_pct, mfa_adoption_pct
+SESSIONS: total_sessions, active_sessions, closed_sessions, avg_sessions_per_user
+USERS: total_users, mfa_enabled_users, user_mfa_adoption_rate
+POLICIES: strong_password_policies, active_network_policies, avg_idle_timeout_mins
 
-Use this tool to QUERY and ANALYZE actual login data, not just provide SQL!"
+KEY DIMENSIONS (22+ available):
+LOGIN: user_name, client_ip, is_success, error_code, reported_client_type, event_timestamp
+SESSIONS: session_id, created_on, authentication_method, closed_reason, client_application_id
+
+Use this to QUERY actual security data, analyze risks, and provide actionable insights!"
             }
         },
         {

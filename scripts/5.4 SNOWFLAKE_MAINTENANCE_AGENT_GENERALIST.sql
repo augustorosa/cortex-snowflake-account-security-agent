@@ -1,5 +1,5 @@
 -- ============================================================================
--- SNOWFLAKE MAINTENANCE AGENT (GENERALIST)
+-- SNOWFLAKE MAINTENANCE AGENT (GENERALIST) - PHASE 7 ENHANCED
 -- ============================================================================
 -- Comprehensive agent for complete Snowflake account monitoring
 -- 
@@ -7,9 +7,10 @@
 -- - This is the GENERALIST agent for cross-domain analysis
 -- - Complements specialized agents:
 --   • COST_PERFORMANCE_AGENT (fast cost/performance queries)
---   • SECURITY_MONITORING_AGENT (fast security/login queries)
+--   • SECURITY_MONITORING_AGENT (fast security/login + session queries)
 -- 
--- CAPABILITIES: 20 ACCOUNT_USAGE tables, 35 dimensions, 94 metrics
+-- PHASE 7 CAPABILITIES: 24 ACCOUNT_USAGE tables, 45 dimensions, 122 metrics
+-- NEW: SESSIONS, PASSWORD_POLICIES, SESSION_POLICIES, NETWORK_POLICIES
 -- ============================================================================
 
 USE ROLE cortex_role;
@@ -27,11 +28,13 @@ I provide complete visibility into your Snowflake account across all operational
 • Cache efficiency and partition pruning
 • Failed queries and error analysis
 
-🔒 SECURITY & AUTHENTICATION  
+🔒 SECURITY & AUTHENTICATION (PHASE 7 ENHANCED)
 • Login monitoring: success/failure rates, patterns
-• MFA adoption tracking and user authentication
+• Session tracking: active/closed sessions, authentication methods
+• MFA adoption: per-user and per-login tracking
+• User security posture: active/disabled accounts, MFA enablement
+• Policy compliance: password strength, session timeouts, network policies
 • IP analysis and suspicious login detection
-• Client type and version tracking
 
 💰 COST & STORAGE
 • Warehouse metering: credits by warehouse/time
@@ -64,10 +67,10 @@ I excel at connecting the dots across domains:
 • Storage growth + query performance
 • Overall account health assessments
 
-📈 COVERAGE:
-• 20 Account Usage tables
-• 35 categorical dimensions
-• 94 aggregated metrics
+📈 PHASE 7 COVERAGE:
+• 24 Account Usage tables (+4 security policy tables)
+• 45 categorical dimensions (+10 session dimensions)
+• 122 aggregated metrics (+28 security/policy metrics)
 • 365 days of history $$
 FROM SPECIFICATION $$
 {

@@ -1,45 +1,63 @@
 # 🔒 ENHANCED SECURITY AGENT ROADMAP
 
-## Current State Analysis
+## Current State Analysis (Updated: Phase 7 Complete)
 
 ### ✅ **What Security Specialist Agent Has Today:**
-- `LOGIN_HISTORY` (365 days)
-  - Login attempts, failures, MFA tracking
-  - Client IP, type, version
-  - Authentication factors
-  - Success/failure rates
+- `LOGIN_HISTORY` - Authentication tracking (365 days)
+- `SESSIONS` - Active session monitoring
+- `USERS` - User account management and MFA tracking
+- `PASSWORD_POLICIES` - Password strength compliance
+- `SESSION_POLICIES` - Session timeout and security settings
+- `NETWORK_POLICIES` - IP allowlist/blocklist enforcement
 
-**Limitations:**
-- Only LOGIN data (authentication only)
-- No access/authorization monitoring
-- No data governance visibility
-- No policy enforcement tracking
-- No network security monitoring
+**Capabilities:**
+- ✅ Login attempts, failures, MFA tracking
+- ✅ Session lifecycle monitoring
+- ✅ User authentication factor analysis
+- ✅ Password policy compliance tracking
+- ✅ Session timeout configuration audit
+- ✅ Network policy enforcement visibility
+
+**Remaining Limitations:**
+- No access/authorization monitoring (requires ACCESS_HISTORY)
+- No data governance visibility (requires CORE/DATA_PRIVACY schemas)
+- No object-level access tracking
 
 ---
 
 ## 🎯 **Lessons from Generalist Agent Success**
 
 ### **Key Insights:**
-1. **Column Name Conflicts Are Universal**
-   - Most ACCOUNT_USAGE tables can only provide METRICS, not DIMENSIONS
-   - Common conflicts: `NAME`, `START_TIME`, `END_TIME`, `STATE`, `USER_NAME`
-   - Solution: Accept metrics-only approach for most tables
+1. **Alias Naming is Critical for Semantic Views**
+   - Aliases MUST match or be very similar to original column names
+   - Example: `REPORTED_CLIENT_VERSION` should be aliased as `reported_client_version`, NOT `client_version`
+   - Using shortened/different aliases causes "invalid identifier" errors
+   - This is the PRIMARY reason tables fail, not inherent "column conflicts"
+   - Solution: Always use exact column name (lowercase) as alias
 
-2. **Helper Views Work Well**
+2. **Column Name Conflicts Only Occur When Multiple Tables Share Same Column**
+   - TRUE conflicts: When 2+ tables both have `USER_NAME`, `NAME`, `START_TIME`, etc.
+   - These force tables to be metrics-only OR require careful alias differentiation
+   - Example: `qh.USER_NAME` vs `login.USER_NAME` works because aliases differ
+   - Single-table semantic views rarely have this issue
+
+3. **Helper Views Work Well**
    - Use helper views for complex JSON data (e.g., ACCESS_HISTORY)
    - Reference in agent instructions, not directly in semantic view
    - Provides flexibility without semantic view limitations
+   - Already implemented in `2.1A FLATTENED_ACCESS_HISTORY_VIEWS.sql`
 
-3. **Cross-Domain Value**
+4. **Cross-Domain Value**
    - Users love correlations: "failed logins + expensive queries"
    - Security + cost analysis is powerful
    - Health dashboards need multiple domains
+   - Generalist agent excels at cross-domain queries
 
-4. **Verified Queries Are Critical**
+5. **Verified Queries Are Critical**
    - Pre-built queries guide AI agent behavior
    - Examples help users understand capabilities
    - Reduces hallucination and improves accuracy
+   - Include diverse query patterns (filters, aggregations, time-series)
 
 ---
 
@@ -102,15 +120,39 @@ Based on https://docs.snowflake.com/en/sql-reference/snowflake-db
 
 ## 🚀 **Enhanced Security Agent Phases**
 
-### **PHASE 1: Expand Current Security Agent (PRIORITY 1)**
+### **PHASE 1: Expand Current Security Agent (PRIORITY 1) - ✅ COMPLETED**
 
-#### **Add to Security Semantic View:**
+#### **✅ Completed in Phase 7:**
+
+5. **PASSWORD_POLICIES** ✅
+   - Password requirements tracking
+   - **Metrics:** total_password_policies, policy_compliance_rate, strong_password_policies
+   - **Status:** Deployed in both Security Specialist and Generalist agents
+
+6. **SESSION_POLICIES** ✅
+   - Session timeout and restrictions
+   - **Metrics:** total_session_policies, average_timeout, policies_with_idle_timeout
+   - **Status:** Deployed in both Security Specialist and Generalist agents
+
+7. **SESSIONS** ✅
+   - Active session monitoring
+   - **Dimensions:** session_id, user_name, client_application_id, authentication_method
+   - **Metrics:** active_sessions, total_sessions, unique_session_users
+   - **Status:** Deployed in both Security Specialist and Generalist agents
+
+8. **NETWORK_POLICIES** ✅
+   - IP allowlist/blocklist policies
+   - **Metrics:** total_network_policies, policies_with_allowed_ips, policies_with_blocked_ips
+   - **Status:** Deployed in both Security Specialist and Generalist agents
+
+#### **⏳ Remaining Items:**
 
 1. **ACCESS_HISTORY** (via helper views)
    - ✅ Already have helper views in `2.1A`
    - Track: what data was accessed, by whom, when
    - Columns: objects_accessed, base_objects, direct_objects
    - **Metrics Only** (due to JSON complexity)
+   - **Status:** Helper views exist, needs integration into semantic views
 
 2. **POLICY_REFERENCES**
    - Where masking/row access policies are applied
@@ -125,23 +167,6 @@ Based on https://docs.snowflake.com/en/sql-reference/snowflake-db
 4. **ROW_ACCESS_POLICIES**
    - Row-level security definitions
    - **Metrics:** total_row_policies, tables_protected
-
-5. **PASSWORD_POLICIES**
-   - Password requirements tracking
-   - **Metrics:** total_password_policies, policy_compliance_rate
-
-6. **SESSION_POLICIES**
-   - Session timeout and restrictions
-   - **Metrics:** total_session_policies, average_timeout
-
-7. **SESSIONS**
-   - Active session monitoring
-   - **Dimensions:** user_name, client_application_id, authentication_method
-   - **Metrics:** active_sessions, session_duration_avg
-
-8. **NETWORK_POLICIES**
-   - IP whitelist/blacklist policies
-   - **Metrics:** total_network_policies, blocked_ips
 
 9. **NETWORK_POLICY_REFERENCES**
    - Where network policies are applied

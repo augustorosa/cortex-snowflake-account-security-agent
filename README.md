@@ -60,19 +60,25 @@ Ask questions in plain English and get instant answers about:
 - Cross-region data transfers
 - Daily billable credit reconciliation
 
-### 🤖 **Three AI Agents**
+### 🤖 **AI Agents**
 
-1. **Generalist Agent** - Comprehensive cross-domain analysis
-   - Best for: Overall health checks, complex correlations
-   - Example: *"Show users with high costs AND failed logins"*
+#### ⭐ **Generalist Agent** (Recommended - Deploy This)
+The **comprehensive all-in-one solution** that monitors everything:
+- ✅ Security + Cost + Performance + Governance + Operations
+- ✅ 24 ACCOUNT_USAGE tables covering all monitoring domains
+- ✅ 94 pre-built metrics across all areas
+- ✅ Cross-domain analysis (e.g., "users with high costs AND failed logins")
+- ✅ Perfect for: Overall health checks, complex correlations, complete visibility
 
-2. **Cost/Performance Agent** - Fast, focused queries
-   - Best for: Quick cost checks, performance analysis
-   - Example: *"What are my most expensive queries?"*
+**This is the agent you want!** It includes everything the specialists have, plus the ability to correlate across domains.
 
-3. **Security Agent** - Dedicated security monitoring
-   - Best for: Security audits, compliance checks
-   - Example: *"What's my MFA adoption rate?"*
+#### 🔧 **Specialist Agents** (Optional - For Focused Workflows)
+If you prefer focused, single-domain agents:
+
+1. **Cost/Performance Agent** - Fast, focused cost/performance queries only
+2. **Security Agent** - Dedicated security monitoring only
+
+**Note:** Specialists are subsets of the Generalist. Deploy them only if you want separate focused tools for specific teams.
 
 ---
 
@@ -81,33 +87,47 @@ Ask questions in plain English and get instant answers about:
 ### Prerequisites
 - Snowflake account with ACCOUNTADMIN access
 - Cortex features enabled in your region
-- 15 minutes for deployment
+- 5-10 minutes for deployment
 
-### Installation
+### ⭐ Recommended Installation (Generalist Only)
 
 ```bash
 # 1. Clone repository
 git clone https://github.com/augustorosa/cortex-snowflake-account-security-agent.git
 cd cortex-snowflake-account-security-agent
 
-# 2. Deploy all components (15 minutes)
+# 2. Deploy foundation (2 minutes)
 snowsql -f "scripts/1. lab foundations.sql"
 snowsql -f "scripts/2. SNOWFLAKE_INTELLIGENCE.TOOLS schema.sql"
-snowsql -f "scripts/2.2 COST_PERFORMANCE_SVW_SPECIALIST.sql"
-snowsql -f "scripts/5.2 COST_PERFORMANCE_AGENT_SPECIALIST.sql"
-snowsql -f "scripts/2.3 SECURITY_MONITORING_SVW_SPECIALIST.sql"
-snowsql -f "scripts/5.3 SECURITY_MONITORING_AGENT_SPECIALIST.sql"
+
+# 3. Deploy the Generalist Agent (5 minutes) - All-in-one solution
 snowsql -f "scripts/2.4 SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql"
 snowsql -f "scripts/5.4 SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql"
 
-# 3. Optional: Email alerts
-snowsql -f "scripts/3. email integration.sql"
-
-# 4. Test everything
-snowsql -f "scripts/TEST_ALL_PHASES.sql"
+# 4. Test it
+SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+    'What is my overall account health?'
+);
 ```
 
-**That's it!** 🎉 Start asking questions.
+**That's it!** 🎉 You now have complete monitoring coverage.
+
+### 🔧 Optional: Deploy Specialist Agents
+
+If you want focused single-domain agents for specific teams:
+
+```bash
+# Cost/Performance Specialist (optional)
+snowsql -f "scripts/2.2 COST_PERFORMANCE_SVW_SPECIALIST.sql"
+snowsql -f "scripts/5.2 COST_PERFORMANCE_AGENT_SPECIALIST.sql"
+
+# Security Specialist (optional)
+snowsql -f "scripts/2.3 SECURITY_MONITORING_SVW_SPECIALIST.sql"
+snowsql -f "scripts/5.3 SECURITY_MONITORING_AGENT_SPECIALIST.sql"
+
+# Email alerts (optional)
+snowsql -f "scripts/3. email integration.sql"
+```
 
 ---
 
@@ -153,25 +173,25 @@ snowsql -f "scripts/TEST_ALL_PHASES.sql"
 
 ---
 
-## 📊 What's Included
+## 📊 What's Included (Generalist Agent)
 
 **Data Coverage:**
-- 20 Snowflake ACCOUNT_USAGE tables
-- 94 pre-built metrics
-- 35 dimensions for analysis
+- 24 Snowflake ACCOUNT_USAGE tables
+- 100+ pre-built metrics
+- 40+ dimensions for analysis
 - 365 days of historical data
 
-**Monitoring Areas:**
-- Query execution and performance
-- Authentication and login security
-- Cost tracking (warehouses, storage, tasks, pipes, clustering, MVs)
-- User and role governance
-- Task and serverless operations
-- Data loading and replication
-- Warehouse load and queueing
+**Monitoring Domains:**
+- 🔍 **Query Performance:** Execution metrics, slow queries, cache efficiency
+- 🔒 **Security & Authentication:** Login tracking, MFA adoption, session monitoring, suspicious activity
+- 💰 **Cost Analysis:** Warehouse credits, storage costs, task expenses, clustering, replication
+- 👥 **Governance:** User/role management, permission auditing, grant distribution
+- ⚡ **Operations:** Task execution, Snowpipe loading, warehouse queueing
+- 🛡️ **Policy Compliance:** Password policies, session policies, network policies
+- 🔧 **Advanced Operations:** Clustering, materialized views, cross-region transfers
 
 **Testing:**
-- 27 automated validation tests
+- 27+ automated validation tests
 - Coverage across all monitoring areas
 - System health verification
 
@@ -207,30 +227,39 @@ cortex-snowflake-account-security-agent/
 
 ## 🎯 How to Use
 
-### **In Snowflake UI:**
-
-1. Navigate to AI & ML → Snowflake Cortex
-2. Select one of the agents:
-   - `SNOWFLAKE_MAINTENANCE_AGENT` (generalist)
-   - `COST_PERFORMANCE_AGENT` (specialist)
-   - `SECURITY_MONITORING_AGENT` (specialist)
-3. Type your question in plain English
-4. Get instant insights and recommendations
-
-### **Via SQL:**
+### **Via SQL (Recommended):**
 
 ```sql
--- Ask the generalist agent
+-- Ask the Generalist Agent anything - it knows everything!
 SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
     'What is my overall account health?'
 );
 
--- Ask the cost specialist
+SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+    'Show me users with failed logins and expensive queries'
+);
+
+SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+    'What are my total costs and storage growth?'
+);
+```
+
+### **In Snowflake UI:**
+
+1. Navigate to **AI & ML** → **Snowflake Cortex**
+2. Select `SNOWFLAKE_MAINTENANCE_AGENT`
+3. Type your question in plain English
+4. Get instant insights and recommendations
+
+### **If You Deployed Specialists (Optional):**
+
+```sql
+-- Cost/Performance specialist (subset of Generalist)
 SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.COST_PERFORMANCE_AGENT(
     'Show me my most expensive queries'
 );
 
--- Ask the security specialist
+-- Security specialist (subset of Generalist)
 SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SECURITY_MONITORING_AGENT(
     'What is my MFA adoption rate?'
 );
@@ -240,14 +269,17 @@ SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SECURITY_MONITORING_AGENT(
 
 ## 💡 Best Practices
 
-### **Choosing the Right Agent**
+### **Agent Selection Guide**
 
-| Scenario | Agent | Why |
-|----------|-------|-----|
-| Quick cost check | Cost/Performance | Faster, focused results |
-| Security audit | Security | Dedicated security metrics |
-| Overall health | Generalist | Complete picture |
-| Complex analysis | Generalist | Cross-domain insights |
+**🎯 95% of Use Cases:** Use the **Generalist Agent**
+- It has ALL the data and can answer ANY question
+- Cross-domain analysis (correlate security + cost + performance)
+- Single place to ask questions
+
+**🔧 Special Cases:** Use Specialist Agents if:
+- You have separate teams (security team only needs security agent)
+- You want to limit scope for specific workflows
+- You need faster responses for very focused queries (rare)
 
 ### **Query Tips**
 
@@ -400,21 +432,24 @@ Areas for enhancement:
 
 ---
 
-## 🌟 Get Started
+## 🌟 Get Started (5 Minutes)
 
 ```bash
+# Clone repository
 git clone https://github.com/augustorosa/cortex-snowflake-account-security-agent.git
 cd cortex-snowflake-account-security-agent
 
-# Deploy in 15 minutes
-snowsql -f scripts/1.\ lab\ foundations.sql
-snowsql -f scripts/2.\ SNOWFLAKE_INTELLIGENCE.TOOLS\ schema.sql
-snowsql -f scripts/2.4\ SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql
-snowsql -f scripts/5.4\ SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql
+# Deploy foundation + Generalist Agent (all you need!)
+snowsql -f "scripts/1. lab foundations.sql"
+snowsql -f "scripts/2. SNOWFLAKE_INTELLIGENCE.TOOLS schema.sql"
+snowsql -f "scripts/2.4 SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql"
+snowsql -f "scripts/5.4 SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql"
 
 # Start monitoring!
 # Ask: "What's my overall Snowflake account health?"
 ```
+
+**Optional:** Deploy specialists if you want focused single-domain agents (see Quick Start section above).
 
 ---
 
