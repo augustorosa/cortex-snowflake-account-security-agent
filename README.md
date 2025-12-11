@@ -96,21 +96,18 @@ If you prefer focused, single-domain agents:
 git clone https://github.com/augustorosa/cortex-snowflake-account-security-agent.git
 cd cortex-snowflake-account-security-agent
 
-# 2. Deploy foundation (2 minutes)
-snowsql -f "scripts/1. lab foundations.sql"
-snowsql -f "scripts/2. SNOWFLAKE_INTELLIGENCE.TOOLS schema.sql"
+# 2. Deploy in 3 simple steps (5-7 minutes total)
+snowsql -f "scripts/1. lab foundations.sql"                        # Foundation
+snowsql -f "scripts/2. SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql"   # Semantic View
+snowsql -f "scripts/3. SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql" # AI Agent
 
-# 3. Deploy the Generalist Agent (5 minutes) - All-in-one solution
-snowsql -f "scripts/2.4 SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql"
-snowsql -f "scripts/5.4 SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql"
-
-# 4. Test it
+# 3. Test it
 SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
     'What is my overall account health?'
 );
 ```
 
-**That's it!** 🎉 You now have complete monitoring coverage.
+**That's it!** 🎉 You now have complete monitoring coverage with just 3 commands.
 
 ### 🔧 Optional: Deploy Specialist Agents
 
@@ -126,7 +123,10 @@ snowsql -f "scripts/2.3 SECURITY_MONITORING_SVW_SPECIALIST.sql"
 snowsql -f "scripts/5.3 SECURITY_MONITORING_AGENT_SPECIALIST.sql"
 
 # Email alerts (optional)
-snowsql -f "scripts/3. email integration.sql"
+snowsql -f "scripts/4. email integration.sql"
+
+# Marketplace acceptance (optional - for specific use cases)
+snowsql -f "scripts/5. accept marketplace terms.sql"
 ```
 
 ---
@@ -201,26 +201,28 @@ snowsql -f "scripts/3. email integration.sql"
 
 ```
 cortex-snowflake-account-security-agent/
-├── README.md                                       ⬅️ You are here
-├── SECURITY_AGENT_ROADMAP.md                       📋 Future enhancements
+├── README.md                                          ⬅️ You are here
 │
 ├── scripts/
-│   ├── 1. lab foundations.sql                      🏗️  Foundation setup
-│   ├── 2. SNOWFLAKE_INTELLIGENCE.TOOLS schema.sql  📦 Schema creation
+│   ├── 1. lab foundations.sql                         🏗️  Foundation & schema setup
+│   ├── 2. SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql    ⭐ Generalist semantic view
+│   ├── 3. SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql  ⭐ Generalist AI agent
 │   │
-│   ├── 2.2 COST_PERFORMANCE_SVW_SPECIALIST.sql     💰 Cost specialist
-│   ├── 5.2 COST_PERFORMANCE_AGENT_SPECIALIST.sql   🤖 Cost agent
+│   ├── 4. email integration.sql                       📧 Email notifications (optional)
+│   ├── 5. accept marketplace terms.sql                📝 Marketplace (optional)
 │   │
-│   ├── 2.3 SECURITY_MONITORING_SVW_SPECIALIST.sql  🔒 Security specialist
-│   ├── 5.3 SECURITY_MONITORING_AGENT_SPECIALIST.sql 🤖 Security agent
+│   ├── 2.2 COST_PERFORMANCE_SVW_SPECIALIST.sql        💰 Cost specialist (optional)
+│   ├── 5.2 COST_PERFORMANCE_AGENT_SPECIALIST.sql      🤖 Cost agent (optional)
 │   │
-│   ├── 2.4 SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql ⭐ Generalist view
-│   ├── 5.4 SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql ⭐ Generalist agent
+│   ├── 2.3 SECURITY_MONITORING_SVW_SPECIALIST.sql     🔒 Security specialist (optional)
+│   ├── 5.3 SECURITY_MONITORING_AGENT_SPECIALIST.sql   🤖 Security agent (optional)
 │   │
-│   ├── 3. email integration.sql                    📧 Email notifications
-│   └── TEST_ALL_PHASES.sql                         ✅ Automated tests
+│   └── TEST_ALL_PHASES.sql                            ✅ Automated tests
 │
-└── docs/                                           📚 Additional documentation
+└── docs/
+    ├── SECURITY_AGENT_ROADMAP.md                      📋 Future enhancements
+    ├── HOW_TO_USE_SNOWFLAKE_SEMANTIC_VIEWS.md         📚 Semantic views guide
+    └── .github-info.md                                📄 Project documentation
 ```
 
 ---
@@ -432,21 +434,22 @@ Areas for enhancement:
 
 ---
 
-## 🌟 Get Started (5 Minutes)
+## 🌟 Get Started (3 Simple Steps)
 
 ```bash
 # Clone repository
 git clone https://github.com/augustorosa/cortex-snowflake-account-security-agent.git
 cd cortex-snowflake-account-security-agent
 
-# Deploy foundation + Generalist Agent (all you need!)
-snowsql -f "scripts/1. lab foundations.sql"
-snowsql -f "scripts/2. SNOWFLAKE_INTELLIGENCE.TOOLS schema.sql"
-snowsql -f "scripts/2.4 SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql"
-snowsql -f "scripts/5.4 SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql"
+# Deploy in 3 commands (5-7 minutes)
+snowsql -f "scripts/1. lab foundations.sql"                        # Step 1: Foundation
+snowsql -f "scripts/2. SNOWFLAKE_MAINTENANCE_SVW_GENERALIST.sql"   # Step 2: Semantic View
+snowsql -f "scripts/3. SNOWFLAKE_MAINTENANCE_AGENT_GENERALIST.sql" # Step 3: AI Agent
 
 # Start monitoring!
-# Ask: "What's my overall Snowflake account health?"
+SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+    'What is my overall Snowflake account health?'
+);
 ```
 
 **Optional:** Deploy specialists if you want focused single-domain agents (see Quick Start section above).
