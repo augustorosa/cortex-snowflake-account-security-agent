@@ -21,17 +21,23 @@ USE ROLE cortex_role;
 USE SNOWFLAKE_INTELLIGENCE.TOOLS;
 
 -- ============================================================================
--- COMPREHENSIVE SNOWFLAKE OPERATIONS SEMANTIC VIEW (PHASE 7 ENHANCED)
+-- COMPREHENSIVE SNOWFLAKE OPERATIONS SEMANTIC VIEW (PHASE 7 + AWS SECURITY LAKE)
 -- ============================================================================
--- Includes: 24 ACCOUNT_USAGE tables, 45 dimensions, 122 metrics
+-- Includes: 25 tables (24 ACCOUNT_USAGE + 1 AWS Security Lake), 50+ dimensions, 130+ metrics
 -- 
 -- Query & Performance: QUERY_HISTORY, QUERY_ATTRIBUTION_HISTORY
--- Security: LOGIN_HISTORY, SESSIONS (NEW), USERS
--- Security Policies: PASSWORD_POLICIES (NEW), SESSION_POLICIES (NEW), NETWORK_POLICIES (NEW)
+-- Security: LOGIN_HISTORY, SESSIONS, USERS, CLOUDTRAIL_LOGS (AWS)
+-- Security Policies: PASSWORD_POLICIES, SESSION_POLICIES, NETWORK_POLICIES
 -- Cost & Storage: WAREHOUSE_METERING, STORAGE_USAGE, DB/STAGE_STORAGE
 -- Governance: ROLES, GRANTS
 -- Operations: TASK_HISTORY, SERVERLESS_TASK_HISTORY
 -- Advanced: PIPE, CLUSTERING, MV, REPLICATION, TRANSFER, LOAD, METERING
+--
+-- CLOUDTRAIL INTEGRATION:
+-- • Simple columns available: REGION, ACCOUNTID, STATUS, SEVERITY, IS_MFA, CLASS_NAME, ACTIVITY_NAME, TYPE_NAME
+-- • TIME columns omitted (conflict with other tables) - use metrics for time-based analysis
+-- • VARIANT columns (API, ACTOR, SRC_ENDPOINT, CLOUD) require direct table queries
+-- • For detailed analysis with timestamps/services/operations, query ARCHETYPE.SECURITY_DL.CLOUDTRAIL_LOGS
 -- ============================================================================
 
 CREATE OR REPLACE SEMANTIC VIEW 
@@ -41,6 +47,8 @@ TABLES (
   qa AS SNOWFLAKE.ACCOUNT_USAGE.QUERY_ATTRIBUTION_HISTORY,
   login AS SNOWFLAKE.ACCOUNT_USAGE.LOGIN_HISTORY,
   sessions AS SNOWFLAKE.ACCOUNT_USAGE.SESSIONS,
+  cloudtrail AS ARCHETYPE.SECURITY_DL.CLOUDTRAIL_LOGS,
+  cloudtrail_flat AS SNOWFLAKE_INTELLIGENCE.TOOLS.CLOUDTRAIL_LOGS_FLATTENED_VW,
   wh AS SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY,
   storage AS SNOWFLAKE.ACCOUNT_USAGE.STORAGE_USAGE,
   db_storage AS SNOWFLAKE.ACCOUNT_USAGE.DATABASE_STORAGE_USAGE_HISTORY,
@@ -114,6 +122,35 @@ DIMENSIONS (
   sessions.CLIENT_APPLICATION_ID AS client_application_id COMMENT='Client application identifier',
   sessions.CLIENT_VERSION AS client_version COMMENT='Client version',
   sessions.CLOSED_REASON AS closed_reason COMMENT='Reason for session closure (NULL if active)',
+  
+  -- === AWS CLOUDTRAIL DIMENSIONS (AWS Security Lake Integration) ===
+  -- Note: TIME/TIME_DT columns omitted due to potential conflicts - use metrics for time-based analysis
+  cloudtrail.REGION AS region COMMENT='AWS region where event occurred',
+  cloudtrail.ACCOUNTID AS accountid COMMENT='AWS account ID',
+  cloudtrail.CLASS_NAME AS class_name COMMENT='OCSF event class name',
+  cloudtrail.ACTIVITY_NAME AS activity_name COMMENT='Activity/action performed',
+  cloudtrail.TYPE_NAME AS type_name COMMENT='Event type classification',
+  cloudtrail.STATUS AS status COMMENT='Event status (Success, Failure)',
+  cloudtrail.SEVERITY AS severity COMMENT='Event severity level',
+  cloudtrail.IS_MFA AS is_mfa COMMENT='Whether MFA was used',
+  -- Note: For detailed JSON fields, use cloudtrail_flat (added below)
+  -- TIME columns omitted here due to conflicts - use cloudtrail_flat.aws_event_time for time filtering
+  
+  -- === AWS CLOUDTRAIL FLATTENED JSON DIMENSIONS (Helper View) ===
+  cloudtrail_flat.TIME AS aws_event_time COMMENT='AWS event time from CloudTrail logs (from helper flatten view)',
+  cloudtrail_flat.REGION AS aws_region COMMENT='AWS region (from helper flatten view)',
+  cloudtrail_flat.ACCOUNTID AS aws_accountid COMMENT='AWS account id (from helper flatten view)',
+  cloudtrail_flat.CLASS_NAME AS aws_class_name COMMENT='OCSF class name (from helper flatten view)',
+  cloudtrail_flat.ACTIVITY_NAME AS aws_activity_name COMMENT='Activity/action name (from helper flatten view)',
+  cloudtrail_flat.TYPE_NAME AS aws_type_name COMMENT='Type name (from helper flatten view)',
+  cloudtrail_flat.STATUS AS aws_status COMMENT='Status (from helper flatten view)',
+  cloudtrail_flat.SEVERITY AS aws_severity COMMENT='Severity label (from helper flatten view)',
+  cloudtrail_flat.IS_MFA AS aws_is_mfa COMMENT='Whether MFA was used (from helper flatten view)',
+  cloudtrail_flat.VARIANT_COL AS aws_json_variant_col COMMENT='Which VARIANT column the JSON field came from (e.g., ACTOR, API)',
+  cloudtrail_flat.JSON_PATH AS aws_json_path COMMENT='JSON path within the VARIANT document',
+  cloudtrail_flat.JSON_KEY AS aws_json_key COMMENT='JSON object key at the current path (NULL for some array elements)',
+  cloudtrail_flat.JSON_VALUE_TYPE AS aws_json_value_type COMMENT='Snowflake TYPEOF() for JSON_VALUE',
+  cloudtrail_flat.IS_LEAF AS aws_json_is_leaf COMMENT='True if JSON_VALUE is a scalar (not OBJECT/ARRAY)'
   
   -- === WAREHOUSE METERING DIMENSIONS (Phase 3 - Cost Tracking) ===
   -- Note: All warehouse metering dimensions cause conflicts
@@ -256,6 +293,29 @@ METRICS (
   sessions.avg_sessions_per_user AS (
     CAST(COUNT(*) AS FLOAT) / NULLIF(COUNT(DISTINCT sessions.USER_NAME), 0)
   ) COMMENT='Average sessions per user',
+  
+  -- === AWS CLOUDTRAIL METRICS (AWS Security Lake Integration) ===
+  cloudtrail.total_events AS COUNT(*) COMMENT='Total CloudTrail events',
+  cloudtrail.successful_events AS COUNT_IF(cloudtrail.STATUS = 'Success') COMMENT='Successful AWS API calls',
+  cloudtrail.failed_events AS COUNT_IF(cloudtrail.STATUS != 'Success') COMMENT='Failed AWS API calls',
+  cloudtrail.mfa_events AS COUNT_IF(cloudtrail.IS_MFA = TRUE) COMMENT='Events with MFA authentication',
+  cloudtrail.unique_aws_accounts AS COUNT(DISTINCT cloudtrail.ACCOUNTID) COMMENT='Distinct AWS accounts',
+  cloudtrail.unique_regions AS COUNT(DISTINCT cloudtrail.REGION) COMMENT='Distinct AWS regions',
+  cloudtrail.unique_activity_names AS COUNT(DISTINCT cloudtrail.ACTIVITY_NAME) COMMENT='Distinct activity types',
+  cloudtrail.unique_event_classes AS COUNT(DISTINCT cloudtrail.CLASS_NAME) COMMENT='Distinct event classes',
+  cloudtrail.high_severity_events AS COUNT_IF(cloudtrail.SEVERITY_ID >= 4) COMMENT='High severity events (severity 4+)',
+  cloudtrail.critical_events AS COUNT_IF(cloudtrail.SEVERITY_ID >= 5) COMMENT='Critical events (severity 5+)',
+  cloudtrail.mfa_adoption_pct AS (
+    CAST(COUNT_IF(cloudtrail.IS_MFA = TRUE) AS FLOAT) * 100.0 / NULLIF(COUNT(*), 0)
+  ) COMMENT='Percentage of events using MFA',
+  cloudtrail.success_rate_pct AS (
+    CAST(COUNT_IF(cloudtrail.STATUS = 'Success') AS FLOAT) * 100.0 / NULLIF(COUNT(*), 0)
+  ) COMMENT='AWS API call success rate percentage',
+  -- === AWS CLOUDTRAIL FLATTENED JSON METRICS (Helper View) ===
+  cloudtrail_flat.total_json_rows AS COUNT(*) COMMENT='Total flattened JSON rows across all VARIANT columns',
+  cloudtrail_flat.leaf_json_rows AS COUNT_IF(cloudtrail_flat.IS_LEAF) COMMENT='Flattened JSON rows that are scalar leaf values',
+  cloudtrail_flat.unique_json_paths AS COUNT(DISTINCT cloudtrail_flat.JSON_PATH) COMMENT='Distinct JSON paths observed in flattened CloudTrail events',
+  cloudtrail_flat.unique_json_keys AS COUNT(DISTINCT cloudtrail_flat.JSON_KEY) COMMENT='Distinct JSON keys observed in flattened CloudTrail events',
   
   -- === PASSWORD POLICY METRICS (Phase 7 - Security Policies) ===
   pwd_policies.total_password_policies AS COUNT(*) COMMENT='Total password policies defined',

@@ -64,6 +64,12 @@ GRANT ALL PRIVILEGES ON SCHEMA SNOWFLAKE_INTELLIGENCE.TOOLS TO ROLE IDENTIFIER($
 -- Grant access to ACCOUNT_USAGE for semantic views
 GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO ROLE IDENTIFIER($role_name);
 
+-- Grant access to AWS Security Lake CloudTrail logs
+-- Note: If ARCHETYPE database doesn't exist or permissions fail, comment out these lines
+GRANT USAGE ON DATABASE ARCHETYPE TO ROLE IDENTIFIER($role_name);
+GRANT USAGE ON SCHEMA ARCHETYPE.SECURITY_DL TO ROLE IDENTIFIER($role_name);
+GRANT SELECT ON TABLE ARCHETYPE.SECURITY_DL.CLOUDTRAIL_LOGS TO ROLE IDENTIFIER($role_name);
+
 -- Allow anyone to see and use the agents and semantic views
 -- Please note that we are granting access to the public role, so all users can access
 GRANT USAGE ON DATABASE SNOWFLAKE_INTELLIGENCE TO ROLE PUBLIC;
