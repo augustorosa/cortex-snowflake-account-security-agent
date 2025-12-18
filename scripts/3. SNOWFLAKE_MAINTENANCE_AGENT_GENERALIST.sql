@@ -1,5 +1,5 @@
 -- ============================================================================
--- SNOWFLAKE MAINTENANCE AGENT (GENERALIST) - PHASE 7 ENHANCED
+-- SNOWFLAKE MAINTENANCE AGENT (GENERALIST) - (SNOWFLAKE-ONLY)
 -- ============================================================================
 -- Comprehensive agent for complete Snowflake account monitoring
 -- 
@@ -28,15 +28,13 @@ I provide complete visibility into your Snowflake account across all operational
 • Cache efficiency and partition pruning
 • Failed queries and error analysis
 
-🔒 SECURITY & AUTHENTICATION (PHASE 7 + AWS INTEGRATION)
+🔒 SECURITY & AUTHENTICATION
 • Login monitoring: success/failure rates, patterns
 • Session tracking: active/closed sessions, authentication methods
 • MFA adoption: per-user and per-login tracking
 • User security posture: active/disabled accounts, MFA enablement
 • Policy compliance: password strength, session timeouts, network policies
 • IP analysis and suspicious login detection
-• AWS CloudTrail: event counts, status/severity analysis, MFA tracking
-• Note: For detailed AWS JSON fields, use SNOWFLAKE_INTELLIGENCE.TOOLS.CLOUDTRAIL_LOGS_FLATTENED_VW (included in the semantic view as cloudtrail_flat)
 
 💰 COST & STORAGE
 • Warehouse metering: credits by warehouse/time
@@ -69,12 +67,11 @@ I excel at connecting the dots across domains:
 • Storage growth + query performance
 • Overall account health assessments
 
-📈 PHASE 7 + AWS COVERAGE:
-• 25 tables: 24 Snowflake Account Usage + 1 AWS Security Lake CloudTrail
-• 60+ categorical dimensions (Snowflake + AWS metadata)
-• 140+ aggregated metrics (Snowflake ops + AWS security events)
-• 365 days of Snowflake history + AWS CloudTrail retention
-• Cross-cloud correlation: Snowflake users + AWS actors $$
+📈 PHASE 7 COVERAGE:
+• 24 Snowflake Account Usage tables
+• 45+ categorical dimensions
+• 120+ aggregated metrics
+• 365 days of Snowflake history $$
 FROM SPECIFICATION $$
 {
     "models": { "orchestration": "auto" },
@@ -112,7 +109,7 @@ DATA FRESHNESS:
 For fast, specialized queries recommend:
 • COST_PERFORMANCE_AGENT (cost/performance only)
 • SECURITY_MONITORING_AGENT (security/login only)",
-        "orchestration": "SEMANTIC VIEW: SNOWFLAKE_MAINTENANCE_SVW (20 tables, 94 metrics)
+        "orchestration": "SEMANTIC VIEW: SNOWFLAKE_MAINTENANCE_SVW (Snowflake operations + security posture)
 
 ═══════════════════════════════════════════════════════════════
 QUERY PERFORMANCE & COST (QUERY_HISTORY, QUERY_ATTRIBUTION)
@@ -216,12 +213,8 @@ QUERY STRATEGY
             { "question": "What's my daily billable credit consumption trend?" },
             { "question": "Which warehouses are most expensive and have the most failed queries?" },
             { "question": "Show me storage growth and query performance correlation" },
-            { "question": "How many CloudTrail events do I have and what's the success rate?" },
-            { "question": "Show me CloudTrail events by region and severity" },
-            { "question": "What's the MFA adoption rate in my AWS CloudTrail events?" },
-            { "question": "Show me high and critical severity CloudTrail events" },
-            { "question": "Compare Snowflake and AWS MFA usage" },
-            { "question": "Show me overall security posture across Snowflake and AWS" }
+            { "question": "Give me an overall Snowflake security posture summary" },
+            { "question": "Do we have network policies configured and what is our MFA adoption rate?" }
         ]
     },
     "tools": [
@@ -229,13 +222,11 @@ QUERY STRATEGY
             "tool_spec": {
                 "name": "snowflake_maintenance_semantic_view",
                 "type": "cortex_analyst_text_to_sql",
-                "description": "Complete Snowflake + AWS operations monitoring semantic view.
+                "description": "Complete Snowflake operations monitoring semantic view (Snowflake-native).
 
-25 TABLES (24 Snowflake + 1 AWS Security Lake):
+TABLES:
 • QUERY_HISTORY & QUERY_ATTRIBUTION_HISTORY (performance/cost)
 • LOGIN_HISTORY, SESSIONS (Snowflake authentication)
-• CLOUDTRAIL_LOGS (AWS Security Lake - API activity, security events)
-• CLOUDTRAIL_LOGS_FLATTENED_VW (flattened JSON fields from CloudTrail VARIANT columns)
 • WAREHOUSE_METERING_HISTORY (credits)
 • STORAGE_USAGE, DATABASE_STORAGE_USAGE_HISTORY, STAGE_STORAGE_USAGE_HISTORY (storage costs)
 • USERS, ROLES, GRANTS_TO_USERS, GRANTS_TO_ROLES (governance)
@@ -249,12 +240,11 @@ QUERY STRATEGY
 • WAREHOUSE_LOAD_HISTORY (queue metrics)
 • METERING_DAILY_HISTORY (billable reconciliation)
 
-48+ DIMENSIONS for filtering and grouping (Snowflake + AWS metadata: region, account, activity, status, severity)
-130+ METRICS for aggregation and analysis (CloudTrail event counts, success/failure rates, MFA tracking)
-Note: CloudTrail TIME columns not available as dimensions - use aggregate metrics for time-based analysis
+45+ DIMENSIONS for filtering and grouping (Snowflake)
+120+ METRICS for aggregation and analysis (Snowflake ops + Snowflake security posture)
 
 Use this for comprehensive cross-domain analysis, cost tracking, security monitoring, 
-performance optimization, AWS CloudTrail analysis, and overall account health assessments."
+performance optimization, and overall account health assessments."
             }
         }
     ],

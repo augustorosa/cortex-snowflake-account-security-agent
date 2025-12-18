@@ -1,0 +1,69 @@
+-- ============================================================================
+-- FLATTENED KUBERNETES AUDIT LOGS (JSON) - Helper View for Snowflake Intelligence
+-- ============================================================================
+-- Source sample: https://www.ibm.com/docs/en/dsm?topic=auditing-kubernetes-sample-event-message
+-- Snowflake Intelligence / semantic views can't reliably reason over arbitrary JSON.
+-- This view flattens RAW_EVENT_JSON into path/key/value rows.
+
+USE ROLE cortex_role;
+USE SNOWFLAKE_INTELLIGENCE.TOOLS;
+
+CREATE OR REPLACE VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.KUBERNETES_AUDIT_LOGS_FLATTENED_VW AS
+WITH base AS (
+  SELECT
+    EVENT_TIME,
+    HOSTNAME,
+    PROGRAM,
+    SEVERITY,
+    AUDIT_ID,
+    STAGE,
+    LEVEL,
+    VERB,
+    REQUEST_URI,
+    USERNAME,
+    SOURCE_IP,
+    USER_AGENT,
+    OBJECT_RESOURCE,
+    OBJECT_NAMESPACE,
+    RESPONSE_CODE,
+    AUTHZ_DECISION,
+    TRY_PARSE_JSON(RAW_EVENT_JSON) AS RAW_JSON
+  FROM SNOWFLAKE_INTELLIGENCE.TOOLS.KUBERNETES_AUDIT_LOGS_SOURCE
+)
+SELECT
+  b.EVENT_TIME,
+  b.HOSTNAME,
+  b.PROGRAM,
+  b.SEVERITY,
+  b.AUDIT_ID,
+  b.STAGE,
+  b.LEVEL,
+  b.VERB,
+  b.REQUEST_URI,
+  b.USERNAME,
+  b.SOURCE_IP,
+  b.USER_AGENT,
+  b.OBJECT_RESOURCE,
+  b.OBJECT_NAMESPACE,
+  b.RESPONSE_CODE,
+  b.AUTHZ_DECISION,
+  'RAW_EVENT_JSON' AS VARIANT_SOURCE,
+  f.PATH::STRING AS PATH,
+  f.KEY::STRING AS KEY,
+  f.INDEX::NUMBER AS ARRAY_INDEX,
+  f.SEQ::NUMBER AS SEQ,
+  f.VALUE AS VALUE,
+  TYPEOF(f.VALUE) AS VALUE_TYPE,
+  (TYPEOF(f.VALUE) NOT IN ('OBJECT','ARRAY')) AS IS_LEAF,
+  IFF(TYPEOF(f.VALUE) NOT IN ('OBJECT','ARRAY'), TO_VARCHAR(f.VALUE), NULL) AS LEAF_VALUE
+FROM base b,
+     LATERAL FLATTEN(INPUT => b.RAW_JSON, RECURSIVE => TRUE) f
+WHERE b.RAW_JSON IS NOT NULL
+;
+
+COMMENT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.KUBERNETES_AUDIT_LOGS_FLATTENED_VW IS
+'Recursive flatten of Kubernetes audit RAW_EVENT_JSON into path/key/value rows for Snowflake Intelligence.';
+
+GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.KUBERNETES_AUDIT_LOGS_FLATTENED_VW TO ROLE PUBLIC;
+
+

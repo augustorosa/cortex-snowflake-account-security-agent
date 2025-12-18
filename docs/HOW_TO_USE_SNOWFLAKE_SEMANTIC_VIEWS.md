@@ -107,6 +107,70 @@ PASSWORD_MIN_LENGTH AS password_min_length
 
 ---
 
+## Lesson 1.1: “Creative” Aliases and Quoted Identifiers Will Break Semantic Views
+
+### The Problem (What We Observed)
+
+When adding new tables (e.g., Cloudflare / CrowdStrike / helper flattened views), we repeatedly hit errors like:
+
+- `SQL compilation error: invalid identifier 'CLOUDFLARE_TIME'`
+- `SQL compilation error: invalid identifier 'CROWD_USERNAME'`
+- `SQL compilation error: invalid identifier '..._PATH'`
+
+We also tried to “fix” this by quoting aliases:
+
+```sql
+-- ❌ THIS ALSO FAILS IN SEMANTIC VIEW DIMENSIONS
+crowdstrike.SRC_IP AS "crowd_src_ip"
+```
+
+And it still failed with errors like:
+
+- `invalid identifier '"crowd_src_ip"'`
+
+### The Discovery
+
+Semantic views are stricter than normal SQL. In practice:
+
+- **Do not invent new dimension names** inside the semantic view.
+- **Do not rely on quoting** (`"like_this"`) to force acceptance; it can still fail in semantic view compilation.
+
+The only consistently safe rule is the one from Lesson 1:
+
+- **Dimension aliases must match the underlying column name** (typically **exact name, lowercased**).
+
+### The Correct Pattern (Stop Fighting the Framework)
+
+If you need friendlier names or unique prefixes, do it **before** the semantic view:
+
+1. **Create a helper view/table** with the column names you want (already unique / prefixed).
+2. In the semantic view, alias the column to the **same name** (or an extremely close match).
+
+Example:
+
+```sql
+-- ✅ Best practice: rename in helper view (outside semantic view)
+CREATE OR REPLACE VIEW my_schema.cloudflare_logs_helper AS
+SELECT
+  event_time        AS cloudflare_event_time,
+  client_ip         AS cloudflare_client_ip,
+  client_country    AS cloudflare_client_country,
+  client_request_uri AS cloudflare_client_request_uri
+FROM my_schema.cloudflare_logs_raw;
+
+-- ✅ Then in semantic view, keep alias identical (lowercase)
+DIMENSIONS (
+  cloudflare.cloudflare_event_time AS cloudflare_event_time,
+  cloudflare.cloudflare_client_ip AS cloudflare_client_ip,
+  cloudflare.cloudflare_client_country AS cloudflare_client_country,
+  cloudflare.cloudflare_client_request_uri AS cloudflare_client_request_uri
+)
+```
+
+This avoids semantic view parser “mapping” failures.
+
+---
+
 ## Lesson 2: Multi-Table Views = Column Name Conflicts
 
 ### The Challenge
@@ -175,6 +239,44 @@ COMMENT='Combined query and task monitoring';
 ```
 
 **This works!** You get aggregated task metrics without exposing dimensions that conflict.
+
+---
+
+## Lesson 2.1: JSON / VARIANT Columns Must Be Flattened into Helper Views
+
+### The Reality
+
+Snowflake Intelligence (and semantic views) **cannot reason over arbitrary JSON structures** inside `VARIANT` columns as first-class dimensions. If you want “AI-ready” filtering/grouping on JSON fields, you must pre-process.
+
+### The Solution: Flatten Views (Recursive)
+
+Create a helper view that converts JSON into **relational rows** with stable columns like:
+
+- `variant_source` (which JSON field it came from)
+- `path`, `key`
+- `value`, `value_type`
+- `is_leaf`
+
+This is the same technique we use for CloudTrail and Cloudflare sources:
+
+```sql
+SELECT
+  base_id,
+  'RAW_EVENT' AS variant_source,
+  f.path::string AS path,
+  f.key::string AS key,
+  f.value AS value,
+  typeof(f.value) AS value_type,
+  (typeof(f.value) NOT IN ('OBJECT','ARRAY')) AS is_leaf
+FROM some_table t,
+LATERAL FLATTEN(input => t.raw_variant, recursive => true) f;
+```
+
+### Important Detail: Synthetic Data + VARIANT
+
+If you plan to generate synthetic data, prefer storing raw JSON as **string** (e.g. `RAW_EVENT VARCHAR`) and parse it in the flatten view (`TRY_PARSE_JSON`) because VARIANT columns can make synthetic generation workflows brittle. For synthetic data generation, see Snowflake’s stored procedure docs:
+
+- [`SNOWFLAKE.DATA_PRIVACY.GENERATE_SYNTHETIC_DATA`](https://docs.snowflake.com/en/sql-reference/stored-procedures/generate_synthetic_data)
 
 ---
 

@@ -1,6 +1,8 @@
 -- ============================================================================
--- SECURITY MONITORING AGENT - PHASE 7 ENHANCED
+-- SECURITY MONITORING AGENT - PHASE 7 ENHANCED (LEGACY)
 -- ============================================================================
+-- Prefer `scripts/3.1 SECURITY_MONITORING_AGENT_EXPANDED.sql`, which keeps the
+-- Snowflake Maintenance agent Snowflake-only and provides expanded security scope.
 -- Comprehensive security agent with sessions, policies, and MFA tracking
 -- Enhanced with: SESSIONS, USERS, PASSWORD_POLICIES, SESSION_POLICIES, NETWORK_POLICIES
 -- ============================================================================
