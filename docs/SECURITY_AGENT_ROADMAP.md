@@ -45,7 +45,7 @@
    - Use helper views for complex JSON data (e.g., ACCESS_HISTORY)
    - Reference in agent instructions, not directly in semantic view
    - Provides flexibility without semantic view limitations
-   - Already implemented in `2.1A FLATTENED_ACCESS_HISTORY_VIEWS.sql`
+   - Already implemented in `01_flattened_access_history_views.sql`
 
 4. **Cross-Domain Value**
    - Users love correlations: "failed logins + expensive queries"

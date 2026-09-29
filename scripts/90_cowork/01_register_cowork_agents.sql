@@ -1,0 +1,22 @@
+-- ============================================================================
+-- 90_cowork/01_register_cowork_agents.sql
+-- Make the lab agents visible in Snowflake CoWork (formerly Snowflake
+-- Intelligence). CoWork shows agents that are added to the CoWork account
+-- object. Snowflake still uses the SNOWFLAKE INTELLIGENCE keyword and the
+-- default object name SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT for it.
+-- Run after the agent scripts. Requires ACCOUNTADMIN (owner of the object).
+-- ============================================================================
+
+USE ROLE ACCOUNTADMIN;
+
+CREATE SNOWFLAKE INTELLIGENCE IF NOT EXISTS SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;
+GRANT USAGE ON SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT TO ROLE PUBLIC;
+
+-- Run each ADD separately; an agent that was not deployed (for example, an
+-- optional module) only fails its own statement.
+ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT ADD AGENT COWORK.AGENTS.IT_OPS_SECURITY_AGENT;
+ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT ADD AGENT COWORK.AGENTS.SECURITY_MONITORING_AGENT;
+ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT ADD AGENT COWORK.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT;
+ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT ADD AGENT COWORK.AGENTS.COST_PERFORMANCE_AGENT;
+
+SHOW AGENTS IN SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;

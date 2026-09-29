@@ -1,8 +1,10 @@
 # 🎯 Mastering Snowflake Semantic Views: A Practical Guide from Real-World Experience
 
 **Author:** Based on building a comprehensive Snowflake monitoring platform with 24 ACCOUNT_USAGE tables  
-**Date:** November 2025  
-**Reading Time:** 15 minutes
+**Date:** November 2025 (Updated January 2025)  
+**Reading Time:** 20 minutes
+
+> **📢 What's New (January 2025):** This guide now includes lessons on explicit `RELATIONSHIPS` clauses, introspecting semantic view relationships via `ACCOUNT_USAGE.SEMANTIC_RELATIONSHIPS`, enhanced validation rules, and updated best practices from real-world B2B data model implementations.
 
 ---
 
@@ -246,7 +248,7 @@ COMMENT='Combined query and task monitoring';
 
 ### The Reality
 
-Snowflake Intelligence (and semantic views) **cannot reason over arbitrary JSON structures** inside `VARIANT` columns as first-class dimensions. If you want “AI-ready” filtering/grouping on JSON fields, you must pre-process.
+Snowflake CoWork (and semantic views) **cannot reason over arbitrary JSON structures** inside `VARIANT` columns as first-class dimensions. If you want “AI-ready” filtering/grouping on JSON fields, you must pre-process.
 
 ### The Solution: Flatten Views (Recursive)
 
@@ -689,6 +691,338 @@ SELECT YOUR_AGENT('What is the total for metric1?');
 
 ---
 
+## Lesson 9: Explicit Relationships (NEW FEATURE)
+
+### The Evolution
+
+Snowflake has introduced explicit `RELATIONSHIPS` clauses in semantic views to define how tables connect. This addresses the granularity issues we encountered in Lesson 7.
+
+### The Syntax
+
+```sql
+CREATE OR REPLACE SEMANTIC VIEW WESTERN_DISTRIBUTION_SVW
+TABLES (
+    transactions AS anl_inventory__fact_transactions,
+    products AS anl_inventory__dim_products,
+    suppliers AS anl_common__dim_suppliers,
+    customers AS anl_common__dim_customers
+)
+RELATIONSHIPS (
+    transactions.product_key -> products.product_key,
+    transactions.supplier_key -> suppliers.supplier_key,
+    orders.customer_key -> customers.customer_key,
+    orders.supplier_key -> suppliers.supplier_key
+)
+DIMENSIONS (
+    -- Dimensions from all related tables
+    products.product_category AS product_category,
+    suppliers.supplier_name AS supplier_name,
+    customers.customer_tier AS customer_tier
+)
+METRICS (
+    transactions.total_cases AS SUM(transactions.cases),
+    orders.total_orders AS COUNT(orders.order_key)
+)
+```
+
+### Why This Matters
+
+**Before (without RELATIONSHIPS):**
+- Cross-table queries often failed with granularity errors
+- AI couldn't reliably join tables automatically
+- You had to keep dimensions/metrics at the same grain level
+
+**After (with RELATIONSHIPS):**
+- Snowflake understands table relationships explicitly
+- AI can generate correct JOINs automatically
+- Cross-table queries work more reliably
+- Supports star schema patterns (fact → dimension relationships)
+
+### When to Use RELATIONSHIPS
+
+✅ **Use when:**
+- You have clear foreign key relationships
+- Tables follow star schema patterns (facts → dimensions)
+- You want AI to automatically join tables
+- Cross-table queries are important
+
+❌ **Skip when:**
+- Tables are unrelated (metrics-only tables)
+- Relationships are too complex or ambiguous
+- Your Snowflake version doesn't support it yet
+
+### Version Compatibility
+
+**Note:** The `RELATIONSHIPS` clause requires a recent Snowflake version. If you get syntax errors, your version may not support it yet. In that case, follow the patterns from Lesson 7 (same grain level) and Lesson 2 (metrics-only tables).
+
+---
+
+## Lesson 10: Introspecting Semantic View Relationships
+
+### The ACCOUNT_USAGE View
+
+Snowflake provides `SNOWFLAKE.ACCOUNT_USAGE.SEMANTIC_RELATIONSHIPS` to query defined relationships:
+
+```sql
+SELECT 
+    semantic_view_name,
+    from_table_alias,
+    from_column,
+    to_table_alias,
+    to_column,
+    relationship_type
+FROM SNOWFLAKE.ACCOUNT_USAGE.SEMANTIC_RELATIONSHIPS
+WHERE semantic_view_name = 'WESTERN_DISTRIBUTION_SVW'
+ORDER BY from_table_alias, to_table_alias;
+```
+
+### Use Cases
+
+1. **Documentation** - Generate relationship diagrams automatically
+2. **Validation** - Verify relationships are defined correctly
+3. **Debugging** - Understand why cross-table queries work (or don't)
+4. **Migration** - Audit relationships when upgrading semantic views
+
+### Example Output
+
+```
+SEMANTIC_VIEW_NAME          | FROM_TABLE | FROM_COLUMN    | TO_TABLE | TO_COLUMN      | TYPE
+----------------------------|------------|----------------|----------|----------------|------
+WESTERN_DISTRIBUTION_SVW    | transactions | product_key | products | product_key    | ONE_TO_MANY
+WESTERN_DISTRIBUTION_SVW    | transactions | supplier_key | suppliers | supplier_key  | ONE_TO_MANY
+WESTERN_DISTRIBUTION_SVW    | orders      | customer_key  | customers | customer_key  | ONE_TO_MANY
+```
+
+---
+
+## Lesson 11: Enhanced Best Practices (2025 Update)
+
+### 1. Fully Qualified Names in TABLES Clause
+
+**Discovery:** When using `USE DATABASE` and `USE SCHEMA`, you might think you can skip fully qualified names. But semantic views are stricter:
+
+```sql
+-- ❌ MIGHT FAIL (depends on context)
+USE DATABASE demo_western;
+USE SCHEMA dw_western;
+CREATE OR REPLACE SEMANTIC VIEW ...
+TABLES (
+    transactions AS anl_inventory__fact_transactions  -- No schema prefix
+)
+
+-- ✅ ALWAYS SAFE
+CREATE OR REPLACE SEMANTIC VIEW ...
+TABLES (
+    transactions AS demo_western.dw_western.anl_inventory__fact_transactions
+)
+```
+
+**Best Practice:** Always use fully qualified names in the `TABLES` clause, even if you've set the database/schema context.
+
+### 2. Dimension Alias Validation
+
+**Discovery:** Snowflake validates dimension aliases against the source table columns. The alias must either:
+- Match the column name exactly (case-insensitive)
+- Be a valid identifier that maps to an existing column
+
+```sql
+-- ❌ FAILS: Column doesn't exist
+suppliers.supplier_country AS supplier_country  -- Column is 'country', not 'supplier_country'
+
+-- ✅ WORKS: Matches actual column
+suppliers.country AS country  -- Column exists as 'country'
+```
+
+**Best Practice:** Query `INFORMATION_SCHEMA.COLUMNS` to verify column names before creating semantic views:
+
+```sql
+SELECT column_name 
+FROM information_schema.columns 
+WHERE table_name = 'ANL_COMMON__DIM_SUPPLIERS'
+ORDER BY ordinal_position;
+```
+
+### 3. Metrics with COUNT_IF and Complex Expressions
+
+**Discovery:** Metrics support complex expressions, but validation is strict:
+
+```sql
+-- ✅ WORKS: Simple COUNT_IF
+suppliers.bonded_suppliers AS COUNT_IF(suppliers.is_bonded = true)
+
+-- ✅ WORKS: COUNT_IF with string comparison
+orders.prepaid_orders AS COUNT_IF(orders.prepaid_collect = 'Prepaid')
+
+-- ✅ WORKS: SUM with calculated fields
+transactions.total_weight AS SUM(transactions.total_weight)
+
+-- ❌ MIGHT FAIL: Complex nested expressions
+-- (Test carefully - some complex expressions may not validate)
+```
+
+**Best Practice:** Start with simple aggregations, then add complexity incrementally. Test each metric individually.
+
+### 4. Multi-Table Semantic Views: Start Small
+
+**Discovery:** When adding multiple tables, start with 2-3 tables and validate, then expand:
+
+```sql
+-- Phase 1: Core fact tables
+TABLES (
+    transactions AS ...,
+    orders AS ...
+)
+
+-- Phase 2: Add dimensions
+TABLES (
+    transactions AS ...,
+    orders AS ...,
+    products AS ...,
+    dates AS ...
+)
+
+-- Phase 3: Add more dimensions
+TABLES (
+    transactions AS ...,
+    orders AS ...,
+    products AS ...,
+    dates AS ...,
+    suppliers AS ...,
+    customers AS ...
+)
+```
+
+**Best Practice:** Incremental expansion helps identify conflicts early. If a table causes issues, you know exactly which one.
+
+---
+
+## Lesson 12: Validation Rules Summary
+
+### Compilation-Time Validation
+
+Snowflake validates semantic views at creation time. Common validation errors:
+
+#### Error 1: Invalid Identifier
+
+```
+SQL compilation error: invalid identifier 'SUPPLIER_COUNTRY'
+```
+
+**Cause:** Dimension alias doesn't match any column in the source table.
+
+**Fix:** Verify column names match exactly (case-insensitive).
+
+#### Error 2: Syntax Error in TABLES Clause
+
+```
+SQL compilation error: syntax error line 15 at position 16 unexpected '.'
+```
+
+**Cause:** Fully qualified names in `TABLES` clause when `USE DATABASE/SCHEMA` is set.
+
+**Fix:** Remove schema prefix or use fully qualified names consistently.
+
+#### Error 3: Granularity Mismatch
+
+```
+Invalid dimension specified: The dimension entity 'PRODUCTS' must be related to 
+and have an equal or lower level of granularity compared to the base metric 
+or dimension entity 'TRANSACTIONS'.
+```
+
+**Cause:** Dimensions and metrics from tables with incompatible grain levels.
+
+**Fix:** 
+- Use explicit `RELATIONSHIPS` clause (if supported)
+- Keep dimensions/metrics at the same grain level
+- Use metrics-only for incompatible tables
+
+#### Error 4: Duplicate Dimension Names
+
+```
+SQL compilation error: duplicate dimension name 'STATE'
+```
+
+**Cause:** Multiple tables expose the same dimension name (e.g., `locations.state` and `suppliers.state`).
+
+**Fix:** 
+- Only expose dimensions from one table
+- Use metrics-only for conflicting tables
+- Create helper views to rename columns before semantic view
+
+### Runtime Validation
+
+Some errors only appear when querying the semantic view:
+
+#### Error 5: Missing Relationship
+
+```
+Cannot join tables 'transactions' and 'products' - no relationship defined
+```
+
+**Cause:** Cross-table query without explicit `RELATIONSHIPS` or compatible grain.
+
+**Fix:** Add `RELATIONSHIPS` clause or restructure query to use same-grain tables.
+
+---
+
+## Lesson 13: SQL Syntax Improvements
+
+### DESCRIBE SEMANTIC VIEW
+
+Snowflake provides `DESCRIBE SEMANTIC VIEW` to introspect semantic view structure:
+
+```sql
+DESCRIBE SEMANTIC VIEW demo_western.dw_western.western_distribution_analytics_svw;
+```
+
+**Output includes:**
+- Table definitions and base tables
+- All dimensions with data types and comments
+- All metrics with expressions and comments
+- Relationships (if defined)
+
+**Use for:**
+- Documentation generation
+- Validation after changes
+- Understanding existing semantic views
+
+### Querying Semantic Views
+
+The `SEMANTIC_VIEW()` function syntax has evolved:
+
+```sql
+-- Basic query (metrics only)
+SELECT * FROM SEMANTIC_VIEW(
+    western_distribution_analytics_svw
+    METRICS total_transactions, total_orders
+);
+
+-- With dimensions
+SELECT * FROM SEMANTIC_VIEW(
+    western_distribution_analytics_svw
+    DIMENSIONS product_category, supplier_name
+    METRICS total_transactions
+);
+
+-- With WHERE clause (use dimension aliases)
+SELECT * FROM SEMANTIC_VIEW(
+    western_distribution_analytics_svw
+    DIMENSIONS product_category
+    METRICS total_transactions
+)
+WHERE product_category = 'Premium Wine';
+```
+
+### Best Practices for Semantic View Queries
+
+1. **Always specify METRICS** - Don't rely on default behavior
+2. **Use dimension aliases in WHERE** - Not table column names
+3. **Filter early** - Use WHERE clauses to limit data scanned
+4. **Group related metrics** - Query metrics from same grain level together
+
+---
+
 ## Key Takeaways
 
 1. **Alias naming is critical** - Match original column names exactly
@@ -698,6 +1032,9 @@ SELECT YOUR_AGENT('What is the total for metric1?');
 5. **Granularity matters** - Keep dimensions and metrics at compatible grain
 6. **Start simple, grow carefully** - Single tables first, then expand
 7. **Accept limitations gracefully** - Not every table needs dimensions
+8. **Use RELATIONSHIPS when available** - Explicit relationships improve AI query generation
+9. **Validate incrementally** - Test each table addition separately
+10. **Query ACCOUNT_USAGE for introspection** - Use `SEMANTIC_RELATIONSHIPS` to understand your views
 
 ---
 
@@ -713,13 +1050,29 @@ Semantic views are powerful when you work *with* their design, not against it.
 
 ## Resources
 
-- **Snowflake Documentation:** https://docs.snowflake.com/en/user-guide/views-semantic/overview
+### Core Documentation
+
+- **Semantic Views Overview:** https://docs.snowflake.com/en/user-guide/views-semantic/overview
+- **Semantic Views Guide:** https://docs.snowflake.com/en/user-guide/views-semantic/views
+- **Best Practices:** https://docs.snowflake.com/en/user-guide/views-semantic/best-practices-dev
+- **Validation Rules:** https://docs.snowflake.com/en/user-guide/views-semantic/validation-rules
+- **SQL Reference:** https://docs.snowflake.com/en/user-guide/views-semantic/sql
+
+### Account Usage & Introspection
+
 - **Account Usage Reference:** https://docs.snowflake.com/en/sql-reference/account-usage
+- **Semantic Relationships View:** https://docs.snowflake.com/en/sql-reference/account-usage/semantic_relationships
+  - Query defined relationships: `SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.SEMANTIC_RELATIONSHIPS`
+
+### Related Resources
+
 - **Our GitHub Repository:** https://github.com/augustorosa/cortex-snowflake-account-security-agent
+- **Cortex Analyst:** https://docs.snowflake.com/en/user-guide/snowflake-cortex/analyst
+- **Cortex Agents:** https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents
 
 ---
 
 **Have questions or lessons to share?** Open an issue in our repository - we'd love to hear your experiences!
 
-**Built with ❄️ and hard-won experience** | November 2025
+**Built with ❄️ and hard-won experience** | Updated January 2025 with new features (RELATIONSHIPS, validation rules, best practices)
 

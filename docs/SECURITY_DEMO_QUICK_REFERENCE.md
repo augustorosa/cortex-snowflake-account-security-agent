@@ -5,7 +5,7 @@
 The seed data contains **three complete attack chains** you can investigate:
 
 ### **INCIDENT C: Service Account Compromise** 🔑 (LIVE INJECTION)
-**Run before demo:** `snowsql -f "scripts/6.9 DEMO_INJECT_SERVICE_ACCOUNT_COMPROMISE.sql"`
+**Run before demo:** `snowsql -f "scripts/20_security/09_demo_inject_service_account_compromise.sql"`
 
 | Timeline | Source | Evidence |
 |----------|--------|----------|
@@ -262,7 +262,7 @@ The seed data contains **three complete attack chains** you can investigate:
 
 ## 🎬 Sample Demo Flow: Service Account Compromise (5 min) ⭐ RECOMMENDED
 
-**Pre-demo:** Run `snowsql -f "scripts/6.9 DEMO_INJECT_SERVICE_ACCOUNT_COMPROMISE.sql"`
+**Pre-demo:** Run `snowsql -f "scripts/20_security/09_demo_inject_service_account_compromise.sql"`
 
 ```
 [0:00] Hook: "We just got an alert that service account 'svc_deploy' may be compromised"
