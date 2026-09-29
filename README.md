@@ -34,6 +34,7 @@ scripts/
 tests/
   account_monitoring_tests.sql     checks for modules 10/20
   itops_demo_tests.sql             KPI range + storyline detection checks for module 30
+  agent_eval/                      end-to-end agent answers for all 23 verified questions
 docs/
   KPI_CATALOG.md                   IT Ops KPI definitions (five dashboards)
   CLIENT_SOURCE_MAPPING.md         vendor API fields -> flattened columns
@@ -89,6 +90,8 @@ Try these questions with `IT_OPS_SECURITY_AGENT`:
 - "How many E5 licenses are unused and what would we save?"
 - "Which servers are past end of support and what apps run on them?"
 - "How is Fabric F64 capacity trending and when did we throttle?"
+
+To check the agent end to end (about 10 minutes): `python3 tests/agent_eval/run_agent_eval.py -c <connection>`.
 
 The answer keys are in `docs/ITOPS_DEMO_SCENARIOS.md`. KPI definitions are in `docs/KPI_CATALOG.md`.
 

@@ -1,0 +1,23 @@
+cio_overview_monthly	(?i)ticket.*(486|537|485)|89\.\d?%
+tier1_uptime_by_application	(?i)99\.9\d
+mttr_by_priority	(?i)P1.*\b8\.\d
+fcr_by_support_group	(?i)Service Desk.*6\d(\.\d)?%|6\d(\.\d)?%.*Service Desk
+backlog_aging	(?i)30d\+|30\+ days|over 30 days
+technician_workload	Jordan Patel
+alert_noise_by_datasource	(?i)5\d(\.\d)?%
+changes_followed_by_alerts	1450
+hot_devices	PRINT01
+cmdb_completeness_by_type	(?i)8[12](\.\d)?%
+lifecycle_distribution	(?i)In Use
+eos_servers	JDE-APP02
+m365_license_waste	(?i)114|77,?976|78k|\$78
+ai_adoption_trend	(?i)adoption
+ai_cost_by_department_last_30_days	Sales & Marketing
+cost_per_user_by_department	(?i)per (active )?user
+fabric_pipeline_failures	PL_JDE_Ingest_Nightly
+fabric_capacity_daily	(?i)throttl
+service_account_timeline	185\.220\.101\.47
+jde_outage_timeline	(?i)1450|CU14
+signins_from_attacker_range	svc_jde_integration
+sentinel_incidents_by_classification	(?i)TruePositive|true positive
+bulk_cdw_reads_and_exports	(?i)4,?810,?000|4\.81 ?M
