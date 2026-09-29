@@ -20,7 +20,7 @@ This guide shares hard-won lessons from building a production-grade monitoring p
 
 Semantic views are a layer on top of your Snowflake data that:
 1. **Define a logical data model** with dimensions, metrics, and relationships
-2. **Enable natural language queries** via Cortex Analyst AI
+2. **Enable natural language queries** via Cortex Agents
 3. **Provide metadata** that guides AI to generate correct SQL
 4. **Work with standard SQL** - they're queryable like regular views
 

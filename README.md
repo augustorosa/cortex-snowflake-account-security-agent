@@ -45,7 +45,7 @@ docs/
 
 - A role that can run `00_foundation/01_lab_foundations.sql` (ACCOUNTADMIN). It creates `cortex_role`, `cortex_wh`, and the `COWORK` database with schemas `AGENTS`, `TOOLS` and `IT_OPS`.
 - [Snowflake CLI](https://docs.snowflake.com/en/developer-guide/snowflake-cli/index) with a configured connection (`snow connection list`).
-- Cortex Analyst, Cortex Search and Cortex Agents available in the region, or cross-region inference enabled (the foundation script sets `CORTEX_ENABLED_CROSS_REGION = 'ANY_REGION'`).
+- Cortex Agents (with semantic views) and Cortex Search available in the region, or cross-region inference enabled (the foundation script sets `CORTEX_ENABLED_CROSS_REGION = 'ANY_REGION'`).
 
 ## Deploy
 

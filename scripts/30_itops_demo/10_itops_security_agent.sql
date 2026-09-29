@@ -1,7 +1,8 @@
 -- ============================================================================
 -- 30_itops_demo/10_itops_security_agent.sql
 -- Cortex Agent COWORK.AGENTS.IT_OPS_SECURITY_AGENT
---   Tools: Cortex Analyst over IT_OPS_SECURITY_SVW (structured KPIs, logs, timeline)
+--   Tools: Cortex Agents text-to-SQL over IT_OPS_SECURITY_SVW (tool type
+--          cortex_analyst_text_to_sql is still the required spec value) (structured KPIs, logs, timeline)
 --          Cortex Search over IT_OPS_KNOWLEDGE_SEARCH (runbooks, policies, contracts)
 --          data_to_chart (visualisations in Snowflake CoWork)
 --   Persona-aware for the five TAC dashboards + troubleshooting + security.

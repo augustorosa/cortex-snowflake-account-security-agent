@@ -3,7 +3,7 @@
 -- Semantic view COWORK.IT_OPS.IT_OPS_SECURITY_SVW
 -- One governed definition for every KPI on the five TAC dashboards (see
 -- docs/KPI_CATALOG.md) plus security, Fabric CDW / Power BI and cross-source
--- tracing. Used by IT_OPS_SECURITY_AGENT (Cortex Analyst tool) and can also be
+-- tracing. Used by IT_OPS_SECURITY_AGENT (Cortex Agents text-to-SQL tool) and can also be
 -- queried directly with SELECT ... FROM SEMANTIC_VIEW(...).
 -- Requires 06, 07. Re-runnable (CREATE OR REPLACE via YAML).
 -- ============================================================================
