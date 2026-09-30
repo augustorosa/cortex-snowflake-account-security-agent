@@ -147,9 +147,9 @@ SELECT
   PAYLOAD:hostStatus::STRING AS host_status,
   FILTER(PAYLOAD:systemProperties, p -> p:name::STRING = 'system.sysinfo')[0]:value::STRING AS os,
   FILTER(PAYLOAD:systemProperties, p -> p:name::STRING = 'system.categories')[0]:value::STRING AS device_category,
-  FILTER(PAYLOAD:customProperties, p -> p:name::STRING = 'tac.tier')[0]:value::STRING AS tier,
-  FILTER(PAYLOAD:customProperties, p -> p:name::STRING = 'tac.environment')[0]:value::STRING AS environment,
-  FILTER(PAYLOAD:customProperties, p -> p:name::STRING = 'tac.application')[0]:value::STRING AS application
+  FILTER(PAYLOAD:customProperties, p -> p:name::STRING = 'slg.tier')[0]:value::STRING AS tier,
+  FILTER(PAYLOAD:customProperties, p -> p:name::STRING = 'slg.environment')[0]:value::STRING AS environment,
+  FILTER(PAYLOAD:customProperties, p -> p:name::STRING = 'slg.application')[0]:value::STRING AS application
 FROM RAW_LM_DEVICES;
 
 CREATE OR REPLACE VIEW LM_ALERTS COMMENT = 'LogicMonitor alerts. Noise = cleared in under 15 minutes without acknowledgement, or raised during scheduled downtime (SDT)' AS

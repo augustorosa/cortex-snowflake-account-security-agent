@@ -64,7 +64,7 @@ FROM SEMANTIC_VIEW(IT_OPS_SECURITY_SVW DIMENSIONS ai_adoption.usage_month METRIC
 
 INSERT INTO TEST_RESULTS
 SELECT 'kpi: F64 capacity utilization %', ROUND(capacity_utilization_pct, 1)::VARCHAR, '30-60', capacity_utilization_pct BETWEEN 30 AND 60
-FROM SEMANTIC_VIEW(IT_OPS_SECURITY_SVW METRICS fabric_capacity.capacity_utilization_pct WHERE fabric_capacity.capacity_name = 'tac-fabric-f64');
+FROM SEMANTIC_VIEW(IT_OPS_SECURITY_SVW METRICS fabric_capacity.capacity_utilization_pct WHERE fabric_capacity.capacity_name = 'slg-fabric-f64');
 
 INSERT INTO TEST_RESULTS
 SELECT 'kpi: change failure rate %', ROUND(change_failure_rate_pct, 1)::VARCHAR, '3-15', change_failure_rate_pct BETWEEN 3 AND 15
@@ -98,7 +98,7 @@ FROM FABRIC_CAPACITY_DAILY WHERE record_source = 'scenario:s1_outage';
 -- S2: compromise chain across Entra, Azure, Defender, Fabric, Power BI and Sentinel
 INSERT INTO TEST_RESULTS
 SELECT 'S2: attacker sign-ins as svc_jde_integration', COUNT(*)::VARCHAR, '5', COUNT(*) = 5
-FROM ENTRA_SIGNINS WHERE user_email = 'svc_jde_integration@tacdemo.com' AND ip_address = '185.220.101.47' AND is_success;
+FROM ENTRA_SIGNINS WHERE user_email = 'svc_jde_integration@summitlive.example' AND ip_address = '185.220.101.47' AND is_success;
 
 INSERT INTO TEST_RESULTS
 SELECT 'S2: security timeline spans systems', COUNT(DISTINCT source_system)::VARCHAR, '>= 6', COUNT(DISTINCT source_system) >= 6
@@ -107,7 +107,7 @@ WHERE domain = 'Security' AND (actor ILIKE 'svc_jde_integration%' OR ip_address 
 
 INSERT INTO TEST_RESULTS
 SELECT 'S2: bulk CDW read > 4M rows', MAX(row_count)::VARCHAR, '> 4,000,000', MAX(row_count) > 4000000
-FROM FABRIC_WAREHOUSE_QUERIES WHERE login_name = 'svc_jde_integration@tacdemo.com';
+FROM FABRIC_WAREHOUSE_QUERIES WHERE login_name = 'svc_jde_integration@summitlive.example';
 
 INSERT INTO TEST_RESULTS
 SELECT 'S2: Power BI exports from attacker IP', COUNT(*)::VARCHAR, '4', COUNT(*) = 4

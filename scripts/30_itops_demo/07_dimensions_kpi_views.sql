@@ -19,9 +19,9 @@ SELECT email AS user_email, full_name, department, site, job_title,
 FROM SEED_PEOPLE
 UNION ALL
 SELECT column1, column2, 'Information Technology', 'Azure', 'Service Account', 'Service Account', NULL, FALSE, FALSE
-FROM VALUES ('svc_jde_integration@tacdemo.com','svc JDE Integration'),
-            ('svc_fabric_etl@tacdemo.com','svc Fabric ETL'),
-            ('svc_backup@tacdemo.com','svc Backup'),
+FROM VALUES ('svc_jde_integration@summitlive.example','svc JDE Integration'),
+            ('svc_fabric_etl@summitlive.example','svc Fabric ETL'),
+            ('svc_backup@summitlive.example','svc Backup'),
             ('power bi service','Power BI Service');
 
 CREATE OR REPLACE VIEW SDP_ASSETS COMMENT = 'ManageEngine SDP assets / CMDB CIs enriched with lifecycle (EOL/EOS), completeness and LogicMonitor coverage' AS
@@ -286,7 +286,7 @@ FROM SENTINEL_INCIDENTS WHERE severity IN ('High','Medium')
 UNION ALL
 SELECT started_at, 'Microsoft Fabric', 'Security', 'Warehouse Query', 'WH_CDW_Gold query by ' || login_name || ' returned ' || row_count || ' rows',
        IFF(row_count > 1000000, 'High', 'Medium'), login_name, 'WH_CDW_GOLD', NULL, LEFT(command_text, 200)
-FROM FABRIC_WAREHOUSE_QUERIES WHERE row_count > 500000 AND login_name NOT IN ('svc_fabric_etl@tacdemo.com')
+FROM FABRIC_WAREHOUSE_QUERIES WHERE row_count > 500000 AND login_name NOT IN ('svc_fabric_etl@summitlive.example')
 UNION ALL
 SELECT event_at, 'Power BI', 'Security', 'Power BI Export', 'Export of ' || report_name || ' (' || export_type || ') by ' || user_email,
        IFF(exported_rows > 10000, 'High', 'Low'), user_email, NULL, client_ip, exported_rows || ' rows via ' || consumption_method

@@ -1,7 +1,7 @@
 -- ============================================================================
 -- 30_itops_demo/09_itops_security_svw.sql
 -- Semantic view COWORK.IT_OPS.IT_OPS_SECURITY_SVW
--- One governed definition for every KPI on the five TAC dashboards (see
+-- One governed definition for every KPI on the five SLG dashboards (see
 -- docs/KPI_CATALOG.md) plus security, Fabric CDW / Power BI and cross-source
 -- tracing. Used by IT_OPS_SECURITY_AGENT (Cortex Agents text-to-SQL tool) and can also be
 -- queried directly with SELECT ... FROM SEMANTIC_VIEW(...).
@@ -15,7 +15,7 @@ USE SCHEMA COWORK.IT_OPS;
 CALL SYSTEM$CREATE_SEMANTIC_VIEW_FROM_YAML('COWORK.IT_OPS', $$
 name: IT_OPS_SECURITY_SVW
 description: >-
-  TAC IT operations and security model. Joins ManageEngine ServiceDesk Plus (tickets, changes, worklogs, CMDB/assets,
+  SLG IT operations and security model. Joins ManageEngine ServiceDesk Plus (tickets, changes, worklogs, CMDB/assets,
   software licenses), LogicMonitor (alerts, device health), Smartsheet (IT projects), Microsoft Entra ID sign-ins,
   Microsoft Sentinel, Defender XDR, Azure activity, Microsoft 365 licensing, the AI gateway, and the Microsoft Fabric
   corporate data warehouse (CDW) with Power BI. Conformed keys are user email and hostname.
@@ -567,12 +567,12 @@ tables:
 
   # --------------------------------------------------------------------------
   - name: fabric_capacity
-    description: Fabric Capacity Metrics daily CU seconds per item. Production capacity tac-fabric-f64 (64 CU), dev tac-fabric-f8-dev.
+    description: Fabric Capacity Metrics daily CU seconds per item. Production capacity slg-fabric-f64 (64 CU), dev slg-fabric-f8-dev.
     base_table: {database: COWORK, schema: IT_OPS, table: FABRIC_CAPACITY_DAILY}
     primary_key: {columns: [capacity_item_name, capacity_metric_date]}
     dimensions:
       - {name: capacity_item_name, expr: item_name, data_type: VARCHAR}
-      - {name: capacity_name, expr: capacity_name, data_type: VARCHAR, sample_values: [tac-fabric-f64, tac-fabric-f8-dev]}
+      - {name: capacity_name, expr: capacity_name, data_type: VARCHAR, sample_values: [slg-fabric-f64, slg-fabric-f8-dev]}
       - {name: capacity_workspace, expr: workspace_name, data_type: VARCHAR}
       - {name: billing_type, expr: billing_type, data_type: VARCHAR, sample_values: [Interactive, Background]}
       - {name: operation_name, expr: operation_name, data_type: VARCHAR}
@@ -586,7 +586,7 @@ tables:
       - {name: total_cu_seconds, expr: SUM(cu_seconds)}
       - name: capacity_utilization_pct
         expr: "100 * SUM(cu_seconds) / NULLIF(COUNT(DISTINCT capacity_name || TO_VARCHAR(capacity_metric_date)) * MAX(capacity_cu_seconds_per_day), 0)"
-        description: Average daily capacity utilization; filter to a single capacity (usually tac-fabric-f64).
+        description: Average daily capacity utilization; filter to a single capacity (usually slg-fabric-f64).
         synonyms: [Fabric capacity usage, CU utilization]
       - {name: throttled_day_count, expr: "COUNT(DISTINCT IFF(throttling_minutes > 0, capacity_metric_date, NULL))"}
       - {name: max_throttling_minutes, expr: MAX(throttling_minutes)}
@@ -672,17 +672,17 @@ relationships:
 
 module_custom_instructions:
   sql_generation: |
-    Data is synthetic demo data for TAC; the latest date in the data is the demo end date (today).
+    Data is synthetic demo data for SLG; the latest date in the data is the demo end date (today).
     Round percentages and hours to 1 decimal place and currency to 2 decimal places.
     MTTR always means mttr_hours (incidents only). Tickets are requests in ManageEngine ServiceDesk Plus.
     For uptime of critical systems filter cis.tier = 'Tier 1' or health_tier = 'Tier 1'.
-    For Fabric capacity utilization always filter capacity_name = 'tac-fabric-f64' unless the user asks about dev.
+    For Fabric capacity utilization always filter capacity_name = 'slg-fabric-f64' unless the user asks about dev.
     When asked to trace, reconstruct or build a timeline of an incident, query event_timeline ordered by event_at ascending
     and filter by event_actor, event_host or event_ip_address, and a time window.
     Service accounts start with svc_. The JD Edwards database server is JDE-SQL01; the Fabric on-prem data gateway is FABRIC-GW01.
   question_categorization: |
     This model answers IT operations, service desk, infrastructure health, asset/CMDB, license, AI adoption and cost,
-    Microsoft Fabric CDW / Power BI operations, and security investigation questions for TAC.
+    Microsoft Fabric CDW / Power BI operations, and security investigation questions for SLG.
 
 verified_queries:
   - name: cio_overview_monthly
@@ -693,7 +693,7 @@ verified_queries:
         METRICS requests.ticket_count, requests.mttr_hours, requests.sla_compliance_pct)
       ORDER BY created_month
     use_as_onboarding_question: true
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: tier1_uptime_by_application
     question: What is uptime for Tier 1 systems by application?
@@ -703,7 +703,7 @@ verified_queries:
         METRICS device_health.uptime_pct, device_health.total_downtime_minutes
         WHERE cis.tier = 'Tier 1')
       ORDER BY uptime_pct
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: mttr_by_priority
     question: What is MTTR by priority?
@@ -712,7 +712,7 @@ verified_queries:
         DIMENSIONS requests.priority_code
         METRICS requests.mttr_hours, requests.incident_count)
       ORDER BY priority_code
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: fcr_by_support_group
     question: What is first contact resolution by support group?
@@ -722,7 +722,7 @@ verified_queries:
         METRICS requests.fcr_pct, requests.reassignment_rate_pct, requests.ticket_count)
       ORDER BY fcr_pct
     use_as_onboarding_question: true
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: backlog_aging
     question: How old is the open ticket backlog?
@@ -732,7 +732,7 @@ verified_queries:
         METRICS requests.open_backlog_count
         WHERE requests.is_open)
       ORDER BY backlog_age_bucket
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: technician_workload
     question: Where is each technician spending their time across tickets and projects?
@@ -743,7 +743,7 @@ verified_queries:
               workload.ticket_hours, workload.active_projects, workload.late_projects, workload.project_hours, workload.total_tracked_hours)
       ORDER BY total_tracked_hours DESC
     use_as_onboarding_question: true
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: alert_noise_by_datasource
     question: What is the LogicMonitor alert noise ratio by datasource?
@@ -752,7 +752,7 @@ verified_queries:
         DIMENSIONS alerts.datasource
         METRICS alerts.alert_count, alerts.noise_ratio_pct)
       ORDER BY alert_count DESC
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: changes_followed_by_alerts
     question: Which changes were followed by the most alerts and incidents?
@@ -764,7 +764,7 @@ verified_queries:
       ORDER BY alerts_48h_after DESC
       LIMIT 10
     use_as_onboarding_question: true
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: hot_devices
     question: Which servers are running hot on CPU or memory?
@@ -775,7 +775,7 @@ verified_queries:
         WHERE device_health.metric_date >= DATEADD(day, -30, CURRENT_DATE()))
       ORDER BY avg_p95_cpu_pct DESC
       LIMIT 10
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: cmdb_completeness_by_type
     question: What is CMDB completeness by asset type?
@@ -783,7 +783,7 @@ verified_queries:
       SELECT * FROM SEMANTIC_VIEW(COWORK.IT_OPS.IT_OPS_SECURITY_SVW
         DIMENSIONS assets.asset_type
         METRICS assets.asset_count, assets.cmdb_completeness_pct, assets.stale_asset_count, assets.unmonitored_server_count)
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: lifecycle_distribution
     question: Show asset lifecycle distribution by state and age band
@@ -792,7 +792,7 @@ verified_queries:
         DIMENSIONS assets.asset_type, assets.asset_state, assets.age_band
         METRICS assets.asset_count)
       ORDER BY asset_type, asset_state, age_band
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: eos_servers
     question: Which servers are past end of support and what applications run on them?
@@ -803,7 +803,7 @@ verified_queries:
         WHERE assets.is_end_of_support AND assets.asset_type = 'Server')
       ORDER BY asset_application
     use_as_onboarding_question: true
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: m365_license_waste
     question: How many Microsoft 365 licenses are unused and what is the annual waste?
@@ -814,7 +814,7 @@ verified_queries:
                 m365_licenses.unused_license_seats, m365_licenses.license_annual_waste_usd)
       ORDER BY license_annual_waste_usd DESC
     use_as_onboarding_question: true
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: ai_adoption_trend
     question: What is the AI adoption trend by month?
@@ -823,7 +823,7 @@ verified_queries:
         DIMENSIONS ai_adoption.usage_month
         METRICS ai_adoption.ai_adoption_pct, ai_adoption.copilot_active_users_total, ai_adoption.gateway_active_users_total)
       ORDER BY usage_month
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: ai_cost_by_department_last_30_days
     question: Which department drives AI gateway cost in the last 30 days and why?
@@ -834,7 +834,7 @@ verified_queries:
         WHERE ai_requests.ai_request_date >= DATEADD(day, -30, CURRENT_DATE()))
       ORDER BY ai_cost_usd DESC
       LIMIT 15
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: cost_per_user_by_department
     question: What is the monthly technology cost per active user by department?
@@ -843,7 +843,7 @@ verified_queries:
         DIMENSIONS cost_per_user.cost_month, cost_per_user.cost_department
         METRICS cost_per_user.cost_per_active_user_usd)
       ORDER BY cost_month, cost_department
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: fabric_pipeline_failures
     question: Which Fabric CDW pipelines and refreshes failed recently and why?
@@ -854,7 +854,7 @@ verified_queries:
         METRICS fabric_jobs.job_run_count
         WHERE fabric_jobs.job_status <> 'Completed' AND fabric_jobs.run_date >= DATEADD(day, -60, CURRENT_DATE()))
       ORDER BY job_started_at
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: fabric_capacity_daily
     question: What was the daily Fabric F64 capacity utilization and throttling over the last 60 days?
@@ -862,9 +862,9 @@ verified_queries:
       SELECT * FROM SEMANTIC_VIEW(COWORK.IT_OPS.IT_OPS_SECURITY_SVW
         DIMENSIONS fabric_capacity.capacity_metric_date
         METRICS fabric_capacity.capacity_utilization_pct, fabric_capacity.max_throttling_minutes
-        WHERE fabric_capacity.capacity_name = 'tac-fabric-f64' AND fabric_capacity.capacity_metric_date >= DATEADD(day, -60, CURRENT_DATE()))
+        WHERE fabric_capacity.capacity_name = 'slg-fabric-f64' AND fabric_capacity.capacity_metric_date >= DATEADD(day, -60, CURRENT_DATE()))
       ORDER BY capacity_metric_date
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: service_account_timeline
     question: Map out the security incident involving svc_jde_integration from start to finish
@@ -880,7 +880,7 @@ verified_queries:
                OR event_timeline.event_summary ILIKE '%password spray%' OR event_timeline.event_summary ILIKE '%JDE-APP02%'))
       ORDER BY event_at
     use_as_onboarding_question: true
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: jde_outage_timeline
     question: Why did alerts spike on JDE-SQL01 and what was the downstream impact?
@@ -892,7 +892,7 @@ verified_queries:
           AND event_timeline.event_at BETWEEN DATEADD(day, -36, CURRENT_DATE()) AND DATEADD(day, -32, CURRENT_DATE())
           AND (event_timeline.event_host LIKE 'JDE-%' OR event_timeline.event_host = 'FABRIC-GW01' OR event_timeline.source_system = 'Microsoft Fabric'))
       ORDER BY event_at
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: signins_from_attacker_range
     question: Show successful and failed sign-ins from 185.220.101.x by user
@@ -902,7 +902,7 @@ verified_queries:
         METRICS signins.signin_count
         WHERE signins.ip_address LIKE '185.220.101.%')
       ORDER BY is_success DESC, signin_count DESC
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: sentinel_incidents_by_classification
     question: How did the MSSP classify Sentinel incidents by severity?
@@ -911,7 +911,7 @@ verified_queries:
         DIMENSIONS sentinel_incidents.incident_severity, sentinel_incidents.classification
         METRICS sentinel_incidents.security_incident_count, sentinel_incidents.security_incident_mttr_hours)
       ORDER BY incident_severity, classification
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
   - name: bulk_cdw_reads_and_exports
     question: Who read large volumes from the Fabric CDW or exported Power BI reports from outside the corporate network?
@@ -921,7 +921,7 @@ verified_queries:
                    event_timeline.event_ip_address, event_timeline.event_summary, event_timeline.event_detail
         WHERE event_timeline.event_type IN ('Warehouse Query', 'Power BI Export'))
       ORDER BY event_at
-    verified_by: TAC demo
+    verified_by: SLG demo
     verified_at: 1790000000
 $$, FALSE);
 

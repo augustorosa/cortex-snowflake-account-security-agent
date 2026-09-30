@@ -8,7 +8,7 @@ Cortex Agents + Semantic Views that let people ask operational questions in plai
 | Security telemetry | `scripts/20_security` | Cross-source security investigations over synthetic Cloudflare, CrowdStrike, Kubernetes audit, npm supply-chain and CloudTrail data |
 | IT Operations + Security demo | `scripts/30_itops_demo` | IT service desk, infrastructure health, asset/CMDB, license and AI adoption KPIs, plus outage troubleshooting and security incident reconstruction across ManageEngine ServiceDesk Plus, LogicMonitor, Smartsheet, Microsoft Sentinel / Defender XDR / Entra ID / Azure Activity, Microsoft 365, an AI gateway, and the Microsoft Fabric CDW with Power BI |
 
-All data in the security and IT Ops modules is synthetic. It mirrors each vendor's native API/export shape so the same flatten and model pattern applies to real feeds (Snowflake or Microsoft Fabric).
+All data in the security and IT Ops modules is synthetic. The IT Ops demo uses a fictional live-events company, **Summit Live Group (SLG)**, with the email domain `summitlive.example`. It mirrors each vendor's native API/export shape so the same flatten and model pattern applies to real feeds (Snowflake or Microsoft Fabric).
 
 ## Repository layout
 

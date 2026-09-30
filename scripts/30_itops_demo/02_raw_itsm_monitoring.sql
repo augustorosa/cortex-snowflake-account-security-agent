@@ -342,9 +342,9 @@ SELECT OBJECT_CONSTRUCT(
         OBJECT_CONSTRUCT('name','system.categories','value',
             IFF(application = 'Network Infrastructure', 'Network', IFF(os LIKE 'Windows%', 'Windows', 'Linux')))),
     'customProperties', ARRAY_CONSTRUCT(
-        OBJECT_CONSTRUCT('name','tac.environment','value', environment),
-        OBJECT_CONSTRUCT('name','tac.tier','value', tier),
-        OBJECT_CONSTRUCT('name','tac.application','value', application))
+        OBJECT_CONSTRUCT('name','slg.environment','value', environment),
+        OBJECT_CONSTRUCT('name','slg.tier','value', tier),
+        OBJECT_CONSTRUCT('name','slg.application','value', application))
   ), 'baseline', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
 FROM d;
 

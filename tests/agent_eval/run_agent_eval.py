@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""End-to-end agent evaluation for the TAC IT Ops + Security demo.
+"""End-to-end agent evaluation for the SLG IT Ops + Security demo.
 
 Asks COWORK.AGENTS.IT_OPS_SECURITY_AGENT every verified question from the
 semantic view (scripts/30_itops_demo/09_itops_security_svw.sql) and checks each

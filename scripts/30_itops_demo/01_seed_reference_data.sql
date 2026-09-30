@@ -1,6 +1,7 @@
 -- ============================================================================
 -- 30_itops_demo/01_seed_reference_data.sql
--- IT Operations + Security demo (TAC): reference + seed entities
+-- IT Operations + Security demo for Summit Live Group (SLG), a fictional
+-- live-events company: reference + seed entities
 --
 -- Creates in COWORK.IT_OPS:
 --   REF_DEMO_CONFIG        anchor date for the 180-day synthetic window
@@ -25,7 +26,7 @@ USE SCHEMA COWORK.IT_OPS;
 CREATE OR REPLACE TABLE REF_DEMO_CONFIG AS
 SELECT CURRENT_DATE() AS demo_end_date,
        DATEADD(day, -180, CURRENT_DATE()) AS demo_start_date,
-       'tacdemo.com' AS email_domain;
+       'summitlive.example' AS email_domain;
 
 -- Deterministic uniform [0,1): same inputs always give the same value.
 CREATE OR REPLACE FUNCTION R(seed NUMBER, salt VARCHAR)
@@ -53,7 +54,7 @@ SELECT
   n.fn[g.i % 40]::STRING                                  AS first_name,
   n.ln[((g.i + FLOOR(g.i / 40)) % 20)::INT]::STRING                      AS last_name,
   first_name || ' ' || last_name                          AS full_name,
-  LOWER(first_name || '.' || last_name || '@tacdemo.com') AS email,
+  LOWER(first_name || '.' || last_name || '@summitlive.example') AS email,
   (g.i < 40)                                              AS is_technician,
   IFF(g.i < 40,
       ARRAY_CONSTRUCT('Business Applications','Service Desk','Infrastructure','Network',

@@ -1,4 +1,4 @@
-# Client Source Mapping (TAC IT Operations + Security demo)
+# Client Source Mapping (Summit Live Group IT Operations + Security demo)
 
 This file maps each client system to its native API shape, the RAW table that mimics it in `COWORK.IT_OPS`, and the flattened view the semantic view uses.
 
@@ -18,7 +18,7 @@ The same pattern (land native JSON, flatten, conform, model) applies in Snowflak
 | Endpoint | Microsoft Defender XDR | Advanced hunting `AlertInfo` joined with `AlertEvidence` (streaming API / Event Hub) | `RAW_DEFENDER_ALERTS` | `DEFENDER_ALERTS` |
 | SIEM (MSSP-managed) | Microsoft Sentinel | Log Analytics `SecurityIncident`, `SecurityAlert` | `RAW_SENTINEL_INCIDENTS`, `RAW_SENTINEL_ALERTS` | `SENTINEL_INCIDENTS`, `SENTINEL_ALERTS` |
 | Licensing | Microsoft 365 | Graph `subscribedSkus`, `reports/getM365AppUserDetail`, `copilot/reports/getMicrosoft365CopilotUsageUserDetail` | `RAW_M365_SUBSCRIBED_SKUS`, `RAW_M365_USER_ACTIVITY`, `RAW_M365_COPILOT_USAGE` | `M365_SKUS`, `M365_USER_ACTIVITY`, `M365_COPILOT_USAGE` |
-| AI usage and cost | In-house AI gateway (prompt router) | Gateway request log, pushed as events (schema assumed, to confirm with TAC) | `RAW_AI_GATEWAY_REQUESTS` | `AI_GATEWAY_REQUESTS` |
+| AI usage and cost | In-house AI gateway (prompt router) | Gateway request log, pushed as events (schema assumed, to confirm with Summit Live Group) | `RAW_AI_GATEWAY_REQUESTS` | `AI_GATEWAY_REQUESTS` |
 | Data platform (CDW) | Microsoft Fabric | Fabric REST `GET /v1/workspaces/{id}/items` and `.../items/{id}/jobs/instances`; Capacity Metrics app; warehouse `queryinsights.exec_requests_history` | `RAW_FABRIC_ITEMS`, `RAW_FABRIC_JOB_RUNS`, `RAW_FABRIC_CAPACITY_METRICS`, `RAW_FABRIC_WAREHOUSE_QUERIES` | `FABRIC_ITEMS`, `FABRIC_JOB_RUNS`, `FABRIC_CAPACITY_DAILY`, `FABRIC_WAREHOUSE_QUERIES`, `FABRIC_DATA_FRESHNESS` |
 | Reporting | Power BI | Admin API activity events (`GET /admin/activityevents`, Get-PowerBIActivityEvent) | `RAW_POWERBI_ACTIVITY` | `POWERBI_ACTIVITY` |
 | Reference | Demo-maintained | Manual / CSV | `REF_PRODUCT_LIFECYCLE`, `REF_LICENSE_PRICES`, `REF_SLA_TARGETS` | used directly |
@@ -85,7 +85,7 @@ SDP has no native end-of-life / end-of-support date. The demo uses `REF_PRODUCT_
 | `hostStatus` | `host_status` (normal / dead) |
 | `deviceType`, `hostGroupIds` | `device_type`, `host_group_ids` |
 | `systemProperties[name='system.categories']` | `categories` |
-| `customProperties[name='tac.environment' / 'tac.tier']` | `environment`, `tier` |
+| `customProperties[name='slg.environment' / 'slg.tier']` | `environment`, `tier` |
 
 **Alert** (`items[]` from `/alert/alerts`):
 
@@ -148,7 +148,7 @@ One sheet ("IT PMO Portfolio"). The payload has `columns[]` (`id`, `title`, `typ
 - **M365 app user detail:** `userPrincipalName`, `reportRefreshDate`, `lastActivityDate`, `assignedProducts[]`, and per-app last activity.
 - **Copilot usage user detail:** `userPrincipalName`, `reportRefreshDate`, `lastActivityDate`, `copilotChatLastActivityDate`, `microsoftTeamsCopilotLastActivityDate`, `wordCopilotLastActivityDate`, `excelCopilotLastActivityDate`, `outlookCopilotLastActivityDate`. One snapshot per month.
 
-## AI gateway (assumed schema, to confirm with TAC)
+## AI gateway (assumed schema, to confirm with Summit Live Group)
 
 `request_id`, `timestamp`, `user_email`, `department`, `model`, `provider`, `route_reason` (auto_simple / auto_complex / user_override / fallback), `complexity` (router classification: simple / moderate / complex), `prompt_tokens`, `completion_tokens`, `cost_usd`, `latency_ms`, `status`.
 

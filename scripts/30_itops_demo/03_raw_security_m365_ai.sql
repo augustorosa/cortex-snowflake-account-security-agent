@@ -83,9 +83,9 @@ SELECT OBJECT_CONSTRUCT(
   ), 'baseline', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
 FROM (SELECT SEQ4() AS n FROM TABLE(GENERATOR(ROWCOUNT => 180))) d
 CROSS JOIN (SELECT column1 AS upn, column2 AS display_name, column3 AS app, column4 AS ip, column5 AS minute_of_day FROM VALUES
-  ('svc_jde_integration@tacdemo.com','svc JDE Integration','JD Edwards EnterpriseOne (SSO)','20.48.200.14',120),
-  ('svc_fabric_etl@tacdemo.com','svc Fabric ETL','Microsoft Fabric','20.48.200.21',115),
-  ('svc_backup@tacdemo.com','svc Backup','Azure Portal','20.48.200.33',60)) sa;
+  ('svc_jde_integration@summitlive.example','svc JDE Integration','JD Edwards EnterpriseOne (SSO)','20.48.200.14',120),
+  ('svc_fabric_etl@summitlive.example','svc Fabric ETL','Microsoft Fabric','20.48.200.21',115),
+  ('svc_backup@summitlive.example','svc Backup','Azure Portal','20.48.200.33',60)) sa;
 
 -- ============================================================================
 -- ENTRA DIRECTORY AUDITS (~600 admin operations by IT staff)
@@ -129,10 +129,10 @@ SELECT OBJECT_CONSTRUCT(
     'OperationNameValue', a.op,
     'ActivityStatusValue', IFF(R(a.i,'st') < 0.97, 'Success', 'Failure'),
     'CategoryValue', 'Administrative',
-    'Caller', IFF(a.by_svc, 'svc_fabric_etl@tacdemo.com', p.email),
+    'Caller', IFF(a.by_svc, 'svc_fabric_etl@summitlive.example', p.email),
     'CallerIpAddress', IFF(a.by_svc, '20.48.200.21', '203.0.113.' || (10 + MOD(p.person_idx, 40))),
     'ResourceGroup', a.rg,
-    '_ResourceId', '/subscriptions/0000-tac/resourceGroups/' || a.rg || '/providers/' || SPLIT_PART(a.op, '/', 1) || '/' || SPLIT_PART(a.op, '/', 2) || '/res' || MOD(a.i, 20)
+    '_ResourceId', '/subscriptions/0000-slg/resourceGroups/' || a.rg || '/providers/' || SPLIT_PART(a.op, '/', 1) || '/' || SPLIT_PART(a.op, '/', 2) || '/res' || MOD(a.i, 20)
   ), 'baseline', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
 FROM a JOIN SEED_PEOPLE p ON p.person_idx = a.caller_idx;
 

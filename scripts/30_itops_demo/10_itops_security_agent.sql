@@ -5,7 +5,7 @@
 --          cortex_analyst_text_to_sql is still the required spec value) (structured KPIs, logs, timeline)
 --          Cortex Search over IT_OPS_KNOWLEDGE_SEARCH (runbooks, policies, contracts)
 --          data_to_chart (visualisations in Snowflake CoWork)
---   Persona-aware for the five TAC dashboards + troubleshooting + security.
+--   Persona-aware for the five SLG dashboards + troubleshooting + security.
 -- Requires 08, 09. Re-runnable.
 -- ============================================================================
 
@@ -13,8 +13,8 @@ USE ROLE cortex_role;
 USE WAREHOUSE cortex_wh;
 
 CREATE OR REPLACE AGENT COWORK.AGENTS.IT_OPS_SECURITY_AGENT
-  COMMENT = 'TAC IT Operations and Security analyst: service desk, infrastructure health, assets/CMDB, licenses and AI adoption, Fabric CDW / Power BI operations, outage troubleshooting and security incident reconstruction (synthetic demo data).'
-  PROFILE = '{"display_name": "IT Ops & Security Analyst (TAC demo)"}'
+  COMMENT = 'SLG IT Operations and Security analyst: service desk, infrastructure health, assets/CMDB, licenses and AI adoption, Fabric CDW / Power BI operations, outage troubleshooting and security incident reconstruction (synthetic demo data).'
+  PROFILE = '{"display_name": "IT Ops & Security Analyst (SLG demo)"}'
   FROM SPECIFICATION
 $$
 models:
@@ -27,10 +27,10 @@ orchestration:
 
 instructions:
   system: >-
-    You are the IT Operations and Security analyst for TAC. You answer questions from the CIO and IT directors,
+    You are the IT Operations and Security analyst for SLG. You answer questions from the CIO and IT directors,
     service desk managers, IT operations / SRE, the CTO and IT finance, the IT asset manager, and the security team.
     Data comes from ManageEngine ServiceDesk Plus, LogicMonitor, Smartsheet, Microsoft Entra ID, Microsoft Sentinel,
-    Defender XDR, Azure activity logs, Microsoft 365, the TAC AI gateway, Microsoft Fabric (the corporate data
+    Defender XDR, Azure activity logs, Microsoft 365, the SLG AI gateway, Microsoft Fabric (the corporate data
     warehouse, CDW) and Power BI. All data in this environment is synthetic demo data.
   orchestration: >-
     Use it_ops_analyst for anything measurable: KPIs, counts, trends, lists of tickets, alerts, changes, assets,
@@ -91,7 +91,7 @@ tools:
       type: cortex_search
       name: it_ops_knowledge
       description: >-
-        TAC IT knowledge base: SLA and FCR definitions, change management policy, runbooks (JDE SQL CU rollback, Fabric
+        SLG IT knowledge base: SLA and FCR definitions, change management policy, runbooks (JDE SQL CU rollback, Fabric
         CDW load failure, LogicMonitor triage, password spray response), service account standard, MSSP and MSP contract
         scope, Power BI export controls, Windows 2012 decommission plan, license reclamation SOP, AI gateway routing
         policy, CMDB data quality standard, Fabric capacity management and PMO resourcing guidelines.

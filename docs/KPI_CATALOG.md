@@ -1,6 +1,6 @@
 # IT Operations KPI Catalog
 
-These KPIs back the five TAC dashboards and the `IT_OPS_SECURITY_AGENT`. Each one is defined once, as a metric in `COWORK.IT_OPS.IT_OPS_SECURITY_SVW`, so Power BI, the agent and ad-hoc SQL all return the same number.
+These KPIs back the five Summit Live Group dashboards and the `IT_OPS_SECURITY_AGENT`. Each one is defined once, as a metric in `COWORK.IT_OPS.IT_OPS_SECURITY_SVW`, so Power BI, the agent and ad-hoc SQL all return the same number.
 
 Conventions:
 - Time windows use the event date (created, started or activity date).
@@ -75,7 +75,7 @@ Conventions:
 |---|---|---|
 | Pipeline / refresh success % | `fabric_jobs.job_success_rate_pct` | completed job runs / all runs (pipelines, notebooks, semantic model refreshes) |
 | CDW data freshness | `cdw_freshness.max_gold_staleness_hours`, `stale_day_count` | hours since last successful `PL_Silver_To_Gold` at 08:00 UTC; stale when over 24h |
-| Capacity utilization % | `fabric_capacity.capacity_utilization_pct` | daily CU seconds / (64 CU × 86,400) for `tac-fabric-f64` |
+| Capacity utilization % | `fabric_capacity.capacity_utilization_pct` | daily CU seconds / (64 CU × 86,400) for `slg-fabric-f64` |
 | Throttling | `fabric_capacity.max_throttling_minutes`, `throttled_day_count` | interactive throttling minutes from the Capacity Metrics app |
 | Report usage | `powerbi_activity.report_view_count`, `pbi_active_users` | Power BI view events |
 | Report exports (security) | `powerbi_activity.export_count`, `exported_rows_total` | export events by user and IP |
@@ -83,7 +83,7 @@ Conventions:
 
 ## 8. Cross-source tracing
 
-`event_timeline` holds the key events from every source in one timeline, with common actor, host, IP, severity and detail columns. Order it by `event_at` to reconstruct an outage or a security incident. Filter by host (for example `JDE-SQL01`), account (`svc_jde_integration@tacdemo.com`) or IP (`185.220.101.47`).
+`event_timeline` holds the key events from every source in one timeline, with common actor, host, IP, severity and detail columns. Order it by `event_at` to reconstruct an outage or a security incident. Filter by host (for example `JDE-SQL01`), account (`svc_jde_integration@summitlive.example`) or IP (`185.220.101.47`).
 
 ## Expected demo ranges (asserted in `tests/itops_demo_tests.sql`)
 

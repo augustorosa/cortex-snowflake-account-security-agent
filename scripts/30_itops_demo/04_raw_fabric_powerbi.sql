@@ -1,6 +1,6 @@
 -- ============================================================================
 -- 30_itops_demo/04_raw_fabric_powerbi.sql
--- RAW landing tables (native JSON shape) for the TAC Microsoft Fabric CDW
+-- RAW landing tables (native JSON shape) for the SLG Microsoft Fabric CDW
 -- (Corporate Data Warehouse) and Power BI:
 --   RAW_FABRIC_ITEMS              Fabric REST  GET /v1/workspaces/{id}/items
 --   RAW_FABRIC_JOB_RUNS           Fabric REST  GET /v1/workspaces/{id}/items/{id}/jobs/instances
@@ -30,24 +30,24 @@ SELECT column1 AS workspace_name, column2 AS item_name, column3 AS item_type,
        column4 AS schedule_minute_utc, column5 AS base_duration_min, column6 AS daily_cu_seconds,
        column7 AS upstream_item, column8 AS description
 FROM VALUES
-  ('TAC-CDW-Prod','LH_Bronze_JDE','Lakehouse',NULL,NULL,90000,NULL,'Raw JDE F0911/F0411/F03B11 extracts'),
-  ('TAC-CDW-Prod','LH_Bronze_OneStream','Lakehouse',NULL,NULL,40000,NULL,'Raw OneStream cube exports'),
-  ('TAC-CDW-Prod','LH_Silver','Lakehouse',NULL,NULL,120000,NULL,'Cleansed conformed finance data'),
-  ('TAC-CDW-Prod','WH_CDW_Gold','Warehouse',NULL,NULL,520000,NULL,'Gold star schema: fact_gl_journal, fact_ap_invoice, fact_ar_invoice, dim_account, dim_vendor'),
-  ('TAC-CDW-Prod','PL_JDE_Ingest_Nightly','DataPipeline',120,30,260000,NULL,'Copy JDE tables via on-prem gateway FABRIC-GW01 from JDE-SQL01'),
-  ('TAC-CDW-Prod','PL_OneStream_Ingest','DataPipeline',130,18,110000,NULL,'OneStream export via FABRIC-GW02'),
-  ('TAC-CDW-Prod','NB_Silver_Transform_GL','Notebook',170,26,380000,'PL_JDE_Ingest_Nightly','PySpark bronze to silver GL transform'),
-  ('TAC-CDW-Prod','PL_Silver_To_Gold','DataPipeline',210,24,300000,'NB_Silver_Transform_GL','Load gold warehouse facts and dimensions'),
-  ('TAC-Finance-Reporting','SM_Finance_GL','SemanticModel',255,11,240000,'PL_Silver_To_Gold','GL semantic model (Import) on WH_CDW_Gold'),
-  ('TAC-Finance-Reporting','SM_AP_AR','SemanticModel',260,9,160000,'PL_Silver_To_Gold','AP/AR semantic model (Import) on WH_CDW_Gold'),
-  ('TAC-Finance-Reporting','SM_Executive_KPI','SemanticModel',270,6,90000,'PL_Silver_To_Gold','Executive KPI model'),
-  ('TAC-Finance-Reporting','Finance - GL Summary','Report',NULL,NULL,70000,'SM_Finance_GL','Monthly GL summary and variance'),
-  ('TAC-Finance-Reporting','Finance - AP Aging','Report',NULL,NULL,45000,'SM_AP_AR','AP aging by vendor'),
-  ('TAC-Finance-Reporting','Executive KPI Dashboard','Report',NULL,NULL,40000,'SM_Executive_KPI','CFO / CEO KPI dashboard'),
-  ('TAC-IT-Ops','SM_IT_Ops','SemanticModel',300,5,30000,NULL,'IT operations semantic model'),
-  ('TAC-IT-Ops','IT Operations Overview','Report',NULL,NULL,15000,'SM_IT_Ops','CIO overview report'),
-  ('TAC-CDW-Dev','LH_Dev','Lakehouse',NULL,NULL,25000,NULL,'Development lakehouse'),
-  ('TAC-CDW-Dev','NB_Dev_Experiments','Notebook',NULL,NULL,60000,NULL,'Ad-hoc development notebooks');
+  ('SLG-CDW-Prod','LH_Bronze_JDE','Lakehouse',NULL,NULL,90000,NULL,'Raw JDE F0911/F0411/F03B11 extracts'),
+  ('SLG-CDW-Prod','LH_Bronze_OneStream','Lakehouse',NULL,NULL,40000,NULL,'Raw OneStream cube exports'),
+  ('SLG-CDW-Prod','LH_Silver','Lakehouse',NULL,NULL,120000,NULL,'Cleansed conformed finance data'),
+  ('SLG-CDW-Prod','WH_CDW_Gold','Warehouse',NULL,NULL,520000,NULL,'Gold star schema: fact_gl_journal, fact_ap_invoice, fact_ar_invoice, dim_account, dim_vendor'),
+  ('SLG-CDW-Prod','PL_JDE_Ingest_Nightly','DataPipeline',120,30,260000,NULL,'Copy JDE tables via on-prem gateway FABRIC-GW01 from JDE-SQL01'),
+  ('SLG-CDW-Prod','PL_OneStream_Ingest','DataPipeline',130,18,110000,NULL,'OneStream export via FABRIC-GW02'),
+  ('SLG-CDW-Prod','NB_Silver_Transform_GL','Notebook',170,26,380000,'PL_JDE_Ingest_Nightly','PySpark bronze to silver GL transform'),
+  ('SLG-CDW-Prod','PL_Silver_To_Gold','DataPipeline',210,24,300000,'NB_Silver_Transform_GL','Load gold warehouse facts and dimensions'),
+  ('SLG-Finance-Reporting','SM_Finance_GL','SemanticModel',255,11,240000,'PL_Silver_To_Gold','GL semantic model (Import) on WH_CDW_Gold'),
+  ('SLG-Finance-Reporting','SM_AP_AR','SemanticModel',260,9,160000,'PL_Silver_To_Gold','AP/AR semantic model (Import) on WH_CDW_Gold'),
+  ('SLG-Finance-Reporting','SM_Executive_KPI','SemanticModel',270,6,90000,'PL_Silver_To_Gold','Executive KPI model'),
+  ('SLG-Finance-Reporting','Finance - GL Summary','Report',NULL,NULL,70000,'SM_Finance_GL','Monthly GL summary and variance'),
+  ('SLG-Finance-Reporting','Finance - AP Aging','Report',NULL,NULL,45000,'SM_AP_AR','AP aging by vendor'),
+  ('SLG-Finance-Reporting','Executive KPI Dashboard','Report',NULL,NULL,40000,'SM_Executive_KPI','CFO / CEO KPI dashboard'),
+  ('SLG-IT-Ops','SM_IT_Ops','SemanticModel',300,5,30000,NULL,'IT operations semantic model'),
+  ('SLG-IT-Ops','IT Operations Overview','Report',NULL,NULL,15000,'SM_IT_Ops','CIO overview report'),
+  ('SLG-CDW-Dev','LH_Dev','Lakehouse',NULL,NULL,25000,NULL,'Development lakehouse'),
+  ('SLG-CDW-Dev','NB_Dev_Experiments','Notebook',NULL,NULL,60000,NULL,'Ad-hoc development notebooks');
 
 CREATE OR REPLACE TABLE RAW_FABRIC_ITEMS (PAYLOAD VARIANT, SOURCE VARCHAR, INGESTED_AT TIMESTAMP_NTZ);
 INSERT INTO RAW_FABRIC_ITEMS
@@ -58,7 +58,7 @@ SELECT OBJECT_CONSTRUCT(
     'description', description,
     'workspaceId', UUID_STRING('6ba7b810-9dad-11d1-80b4-00c04fd430c8', 'ws-' || workspace_name),
     'workspaceName', workspace_name,
-    'capacityName', IFF(workspace_name = 'TAC-CDW-Dev', 'tac-fabric-f8-dev', 'tac-fabric-f64'),
+    'capacityName', IFF(workspace_name = 'SLG-CDW-Dev', 'slg-fabric-f8-dev', 'slg-fabric-f64'),
     'upstreamItem', upstream_item
   ), 'baseline', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
 FROM SEED_FABRIC_ITEMS;
@@ -103,9 +103,9 @@ CREATE OR REPLACE TABLE RAW_FABRIC_CAPACITY_METRICS (PAYLOAD VARIANT, SOURCE VAR
 INSERT INTO RAW_FABRIC_CAPACITY_METRICS
 WITH days AS (SELECT DATEADD(day, SEQ4(), $demo_start) AS d FROM TABLE(GENERATOR(ROWCOUNT => 180)))
 SELECT OBJECT_CONSTRUCT(
-    'capacityName', IFF(i.workspace_name = 'TAC-CDW-Dev', 'tac-fabric-f8-dev', 'tac-fabric-f64'),
-    'capacitySku', IFF(i.workspace_name = 'TAC-CDW-Dev', 'F8', 'F64'),
-    'capacityCUs', IFF(i.workspace_name = 'TAC-CDW-Dev', 8, 64),
+    'capacityName', IFF(i.workspace_name = 'SLG-CDW-Dev', 'slg-fabric-f8-dev', 'slg-fabric-f64'),
+    'capacitySku', IFF(i.workspace_name = 'SLG-CDW-Dev', 'F8', 'F64'),
+    'capacityCUs', IFF(i.workspace_name = 'SLG-CDW-Dev', 8, 64),
     'date', TO_VARCHAR(days.d, 'YYYY-MM-DD'),
     'workspaceName', i.workspace_name,
     'itemName', i.item_name,
@@ -140,7 +140,7 @@ q AS (
 SELECT OBJECT_CONSTRUCT(
     'distributed_statement_id', UUID_STRING('6ba7b810-9dad-11d1-80b4-00c04fd430c8', 'whq-' || q.i),
     'session_id', 50 + MOD(q.i, 400),
-    'login_name', CASE WHEN q.kind < 2 THEN 'svc_fabric_etl@tacdemo.com'
+    'login_name', CASE WHEN q.kind < 2 THEN 'svc_fabric_etl@summitlive.example'
                        WHEN q.kind < 6 THEN 'Power BI Service'
                        ELSE a.email END,
     'program_name', CASE WHEN q.kind < 2 THEN 'Fabric Data Pipeline'
@@ -171,11 +171,11 @@ WITH viewers AS (
 ),
 reports AS (
   SELECT column1 AS rk, column2 AS report_name, column3 AS dataset_name, column4 AS workspace_name FROM VALUES
-    (0,'Finance - GL Summary','SM_Finance_GL','TAC-Finance-Reporting'),
-    (1,'Finance - GL Summary','SM_Finance_GL','TAC-Finance-Reporting'),
-    (2,'Finance - AP Aging','SM_AP_AR','TAC-Finance-Reporting'),
-    (3,'Executive KPI Dashboard','SM_Executive_KPI','TAC-Finance-Reporting'),
-    (4,'IT Operations Overview','SM_IT_Ops','TAC-IT-Ops')
+    (0,'Finance - GL Summary','SM_Finance_GL','SLG-Finance-Reporting'),
+    (1,'Finance - GL Summary','SM_Finance_GL','SLG-Finance-Reporting'),
+    (2,'Finance - AP Aging','SM_AP_AR','SLG-Finance-Reporting'),
+    (3,'Executive KPI Dashboard','SM_Executive_KPI','SLG-Finance-Reporting'),
+    (4,'IT Operations Overview','SM_IT_Ops','SLG-IT-Ops')
 ),
 e AS (
   SELECT i,

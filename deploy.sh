@@ -35,8 +35,7 @@ for m in "${MODULES[@]}"; do
     foundation)         run_dir scripts/00_foundation ;;
     account_monitoring) run_dir scripts/10_account_monitoring ;;
     security)           run_dir scripts/20_security ;;
-    itops)              run_dir scripts/30_itops_demo
-      run_dir scripts/90_cowork ;;
+    itops)              run_dir scripts/30_itops_demo ;;
     cowork)             run_dir scripts/90_cowork ;;
     tests)              snow sql -c "$CONN" --enable-templating NONE -f "$ROOT/tests/itops_demo_tests.sql" ;;
     all)
@@ -44,6 +43,7 @@ for m in "${MODULES[@]}"; do
       run_dir scripts/10_account_monitoring
       run_dir scripts/20_security
       run_dir scripts/30_itops_demo
+      run_dir scripts/90_cowork
       snow sql -c "$CONN" --enable-templating NONE -f "$ROOT/tests/itops_demo_tests.sql"
       ;;
     *) echo "unknown module: $m"; exit 1 ;;
