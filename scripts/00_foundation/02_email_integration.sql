@@ -1,10 +1,17 @@
-CREATE OR REPLACE NOTIFICATION INTEGRATION email_integration
+-- ============================================================================
+-- 00_foundation/02_email_integration.sql
+-- Email notification integration + SEND_EMAIL procedure used as an agent tool.
+-- ============================================================================
+USE ROLE cortex_role;
+USE WAREHOUSE cortex_wh;
+
+CREATE NOTIFICATION INTEGRATION IF NOT EXISTS email_integration
   TYPE=EMAIL
   ENABLED=TRUE
   DEFAULT_SUBJECT = 'snowflake intelligence'
 ;
 
-CREATE OR REPLACE PROCEDURE SNOWFLAKE_INTELLIGENCE.TOOLS.SEND_EMAIL(
+CREATE OR REPLACE PROCEDURE COWORK.TOOLS.SEND_EMAIL(
     recipient_email VARCHAR,
     subject VARCHAR,
     body VARCHAR
@@ -39,7 +46,8 @@ def send_email(session, recipient_email, subject, body):
         return f"Error sending email: {str(e)}"
 $$;
 
-CALL SNOWFLAKE_INTELLIGENCE.TOOLS.SEND_EMAIL(
-  'your_email_address',
-  'Cortex Email',
-  'This is testing of email from Snowflake');
+-- Smoke test (replace the address with a verified user email, then run manually):
+-- CALL COWORK.TOOLS.SEND_EMAIL(
+--   'your_email_address',
+--   'Cortex Email',
+--   'This is testing of email from Snowflake');

@@ -51,7 +51,7 @@ Semantic views have strict requirements:
 - Query execution patterns
 - Failed query analysis
 
-### 2. **Helper Views** (`2.1A FLATTENED_ACCESS_HISTORY_VIEWS.sql`)
+### 2. **Helper Views** (`01_flattened_access_history_views.sql`)
 **Purpose:** Provide direct SQL access to security data not available in semantic views
 
 **Views Created:**
@@ -117,7 +117,7 @@ SELECT
     IS_SUCCESS,
     ERROR_CODE,
     ERROR_MESSAGE
-FROM SNOWFLAKE_INTELLIGENCE.TOOLS.LOGIN_ACTIVITY_VW
+FROM COWORK.TOOLS.LOGIN_ACTIVITY_VW
 WHERE IS_SUCCESS = 'NO'
 ORDER BY USER_NAME;
 ```
@@ -130,7 +130,7 @@ SELECT
     USER_NAME,
     QUERY_START_TIME,
     COLUMN_NAME
-FROM SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_BASE_OBJECTS_VW
+FROM COWORK.TOOLS.ACCESS_BASE_OBJECTS_VW
 WHERE BASE_OBJECT_NAME LIKE '%CUSTOMER%'
 ORDER BY QUERY_START_TIME DESC;
 ```
@@ -139,7 +139,7 @@ ORDER BY QUERY_START_TIME DESC;
 ```sql
 -- Agent provides this SQL to users
 SELECT * 
-FROM SNOWFLAKE_INTELLIGENCE.TOOLS.SENSITIVE_TABLE_ACCESS_VW
+FROM COWORK.TOOLS.SENSITIVE_TABLE_ACCESS_VW
 ORDER BY ACCESS_TIME DESC;
 ```
 
@@ -183,18 +183,18 @@ ORDER BY ACCESS_TIME DESC;
 
 ## 🚀 Deployment Order
 
-1. **Foundation** (`1. lab foundations.sql`)
+1. **Foundation** (`01_lab_foundations.sql`)
    - Create database, schema, role, warehouse
 
-2. **Helper Views** (`2.1A FLATTENED_ACCESS_HISTORY_VIEWS.sql`)
+2. **Helper Views** (`01_flattened_access_history_views.sql`)
    - Create all security helper views
    - Grant SELECT to PUBLIC
 
-3. **Semantic View** (`2.1 ENHANCED_SECURITY_DIAGNOSTICS_SVW.sql`)
+3. **Semantic View** (`05_enhanced_security_diagnostics_svw.sql`)
    - Create semantic view for query/cost data
    - Grant SELECT to PUBLIC
 
-4. **Email Integration** (`3. email integration.sql` - Optional)
+4. **Email Integration** (`02_email_integration.sql` - Optional)
    - Setup notification capabilities
 
 5. **Documentation** (`4. accept marketplace terms.sql` - Optional)

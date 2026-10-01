@@ -3,10 +3,10 @@
 -- This is the "working" semantic view with proven QUERY_HISTORY metrics
 
 USE ROLE cortex_role;
-USE SNOWFLAKE_INTELLIGENCE.TOOLS;
+USE COWORK.TOOLS;
 
 CREATE OR REPLACE SEMANTIC VIEW 
-    SNOWFLAKE_INTELLIGENCE.TOOLS.COST_PERFORMANCE_SVW
+    COWORK.TOOLS.COST_PERFORMANCE_SVW
 TABLES (
   SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY,
   SNOWFLAKE.ACCOUNT_USAGE.QUERY_ATTRIBUTION_HISTORY
@@ -65,7 +65,7 @@ FACTS (
   -- ===== QUERY ATTRIBUTION FACTS =====
   QUERY_ATTRIBUTION_HISTORY.CREDITS_ATTRIBUTED_COMPUTE AS CREDITS_ATTRIBUTED_COMPUTE COMMENT='The percentage of compute resources utilized that are attributed to the user or organization.',
   QUERY_ATTRIBUTION_HISTORY.CREDITS_USED_QUERY_ACCELERATION AS CREDITS_USED_QUERY_ACCELERATION COMMENT='The total amount of credits used for query acceleration.',
-  QUERY_ATTRIBUTION_HISTORY.WAREHOUSE_ID AS WAREHOUSE_ID COMMENT='Unique identifier for the warehouse in attribution history.'
+  QUERY_ATTRIBUTION_HISTORY.QAH_WAREHOUSE_ID AS WAREHOUSE_ID COMMENT='Unique identifier for the warehouse in attribution history.'
 )
 DIMENSIONS (
   -- ===== QUERY HISTORY DIMENSIONS =====
@@ -101,16 +101,16 @@ DIMENSIONS (
   QUERY_HISTORY.WAREHOUSE_TYPE AS WAREHOUSE_TYPE COMMENT='The type of warehouse used to execute the query.',
   
   -- ===== QUERY ATTRIBUTION DIMENSIONS =====
-  QUERY_ATTRIBUTION_HISTORY.END_TIME AS END_TIME COMMENT='The date and time when the attribution event ended.',
+  QUERY_ATTRIBUTION_HISTORY.QAH_END_TIME AS END_TIME COMMENT='The date and time when the attribution event ended.',
   QUERY_ATTRIBUTION_HISTORY.PARENT_QUERY_ID AS PARENT_QUERY_ID COMMENT='Unique identifier of the parent query.',
-  QUERY_ATTRIBUTION_HISTORY.QUERY_HASH AS QUERY_HASH COMMENT='Unique identifier for a query in attribution history.',
-  QUERY_ATTRIBUTION_HISTORY.QUERY_ID AS QUERY_ID COMMENT='Unique identifier for a query in attribution history.',
-  QUERY_ATTRIBUTION_HISTORY.QUERY_PARAMETERIZED_HASH AS QUERY_PARAMETERIZED_HASH COMMENT='A unique identifier for a parameterized query in attribution history.',
-  QUERY_ATTRIBUTION_HISTORY.QUERY_TAG AS QUERY_TAG COMMENT='Metadata tags associated with a query in attribution history.',
+  QUERY_ATTRIBUTION_HISTORY.QAH_QUERY_HASH AS QUERY_HASH COMMENT='Unique identifier for a query in attribution history.',
+  QUERY_ATTRIBUTION_HISTORY.QAH_QUERY_ID AS QUERY_ID COMMENT='Unique identifier for a query in attribution history.',
+  QUERY_ATTRIBUTION_HISTORY.QAH_QUERY_PARAMETERIZED_HASH AS QUERY_PARAMETERIZED_HASH COMMENT='A unique identifier for a parameterized query in attribution history.',
+  QUERY_ATTRIBUTION_HISTORY.QAH_QUERY_TAG AS QUERY_TAG COMMENT='Metadata tags associated with a query in attribution history.',
   QUERY_ATTRIBUTION_HISTORY.ROOT_QUERY_ID AS ROOT_QUERY_ID COMMENT='Unique identifier for the root query.',
-  QUERY_ATTRIBUTION_HISTORY.START_TIME AS START_TIME COMMENT='The timestamp when the attribution event started.',
-  QUERY_ATTRIBUTION_HISTORY.USER_NAME AS USER_NAME COMMENT='The user in attribution history.',
-  QUERY_ATTRIBUTION_HISTORY.WAREHOUSE_NAME AS WAREHOUSE_NAME COMMENT='The warehouse name in attribution history.'
+  QUERY_ATTRIBUTION_HISTORY.QAH_START_TIME AS START_TIME COMMENT='The timestamp when the attribution event started.',
+  QUERY_ATTRIBUTION_HISTORY.QAH_USER_NAME AS USER_NAME COMMENT='The user in attribution history.',
+  QUERY_ATTRIBUTION_HISTORY.QAH_WAREHOUSE_NAME AS WAREHOUSE_NAME COMMENT='The warehouse name in attribution history.'
 )
 COMMENT='Cost and performance semantic view for query optimization and cost analysis. Built on QUERY_HISTORY and QUERY_ATTRIBUTION_HISTORY.'
 WITH EXTENSION (CA='{"tables":[
@@ -140,9 +140,9 @@ WITH EXTENSION (CA='{"tables":[
   {
     "name":"Warehouse Cost Analysis",
     "question":"Which warehouses are consuming the most credits?",
-    "sql":"SELECT warehouse_name, COUNT(*) as query_count, SUM(credits_attributed_compute) as total_credits FROM query_attribution_history WHERE start_time >= DATEADD(day, -7, CURRENT_TIMESTAMP()) GROUP BY warehouse_name ORDER BY total_credits DESC"
+    "sql":"SELECT qah_warehouse_name AS warehouse_name, COUNT(*) as query_count, SUM(credits_attributed_compute) as total_credits FROM query_attribution_history WHERE qah_start_time >= DATEADD(day, -7, CURRENT_TIMESTAMP()) GROUP BY qah_warehouse_name ORDER BY total_credits DESC"
   }
 ]}');
 
-GRANT SELECT ON VIEW SNOWFLAKE_INTELLIGENCE.TOOLS.COST_PERFORMANCE_SVW TO ROLE PUBLIC;
+GRANT SELECT ON SEMANTIC VIEW COWORK.TOOLS.COST_PERFORMANCE_SVW TO ROLE PUBLIC;
 

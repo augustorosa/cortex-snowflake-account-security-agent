@@ -1,4 +1,4 @@
-# 🗺️ SNOWFLAKE INTELLIGENCE PLATFORM ROADMAP
+# 🗺️ SNOWFLAKE COWORK PLATFORM ROADMAP
 
 **Status:** Phase 1-6 Complete | 20 Tables | 94 Metrics | 3 Agents Deployed
 
@@ -119,7 +119,7 @@ GOVERNANCE_AGENT:
 
 **Lessons from Phase 1-6:**
 - ⚠️ ACCESS_HISTORY has complex nested JSON - requires helper views
-- ✅ Use `2.1A FLATTENED_ACCESS_HISTORY_VIEWS.sql` pattern
+- ✅ Use `01_flattened_access_history_views.sql` pattern
 - ⚠️ Policy tables likely have NAME/TYPE conflicts - metrics-only approach
 
 **Timeline:** 3-4 weeks
@@ -155,7 +155,7 @@ SELECT * FROM TABLE(INFORMATION_SCHEMA.LOGIN_HISTORY(
 
 -- Add to semantic view
 TABLES (
-  realtime_login AS SNOWFLAKE_INTELLIGENCE.TOOLS.REALTIME_LOGIN_ACTIVITY_VW
+  realtime_login AS COWORK.TOOLS.REALTIME_LOGIN_ACTIVITY_VW
 )
 ```
 
@@ -426,7 +426,7 @@ clustering.total_clustering_credits AS SUM(clustering.CREDITS_USED)
 **Solution:**
 - Create helper views to flatten/simplify
 - Reference helper views in semantic view
-- Pattern established in `2.1A FLATTENED_ACCESS_HISTORY_VIEWS.sql`
+- Pattern established in `01_flattened_access_history_views.sql`
 
 **Example:**
 ```sql
@@ -440,7 +440,7 @@ LATERAL FLATTEN(input => ah.BASE_OBJECTS_ACCESSED) f;
 
 -- Use in semantic view
 TABLES (
-  access_flat AS SNOWFLAKE_INTELLIGENCE.TOOLS.ACCESS_HISTORY_FLATTENED
+  access_flat AS COWORK.TOOLS.ACCESS_HISTORY_FLATTENED
 )
 ```
 
@@ -521,7 +521,7 @@ SPECIALIST AGENTS (fast, focused)
 1. **Immediate (Week 1):**
    - Review and approve roadmap
    - Prioritize Phase 7-9
-   - Test automated test suite (`TEST_ALL_PHASES.sql`)
+   - Test automated test suite (`account_monitoring_tests.sql`)
 
 2. **Week 2-3:**
    - Begin Phase 7 (Security expansion)

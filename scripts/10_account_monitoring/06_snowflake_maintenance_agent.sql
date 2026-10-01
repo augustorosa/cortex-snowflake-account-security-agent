@@ -1,5 +1,5 @@
 -- ============================================================================
--- SNOWFLAKE MAINTENANCE AGENT (GENERALIST) - PHASE 7 ENHANCED
+-- SNOWFLAKE MAINTENANCE AGENT (GENERALIST) - (SNOWFLAKE-ONLY)
 -- ============================================================================
 -- Comprehensive agent for complete Snowflake account monitoring
 -- 
@@ -14,9 +14,9 @@
 -- ============================================================================
 
 USE ROLE cortex_role;
-USE SNOWFLAKE_INTELLIGENCE.AGENTS;
+USE COWORK.AGENTS;
 
-CREATE OR REPLACE AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT
+CREATE OR REPLACE AGENT COWORK.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT
 WITH PROFILE='{ "display_name": "Snowflake Maintenance Generalist" }'
     COMMENT=$$ 🎯 COMPREHENSIVE SNOWFLAKE MONITORING AGENT
 
@@ -28,7 +28,7 @@ I provide complete visibility into your Snowflake account across all operational
 • Cache efficiency and partition pruning
 • Failed queries and error analysis
 
-🔒 SECURITY & AUTHENTICATION (PHASE 7 ENHANCED)
+🔒 SECURITY & AUTHENTICATION
 • Login monitoring: success/failure rates, patterns
 • Session tracking: active/closed sessions, authentication methods
 • MFA adoption: per-user and per-login tracking
@@ -68,10 +68,10 @@ I excel at connecting the dots across domains:
 • Overall account health assessments
 
 📈 PHASE 7 COVERAGE:
-• 24 Account Usage tables (+4 security policy tables)
-• 45 categorical dimensions (+10 session dimensions)
-• 122 aggregated metrics (+28 security/policy metrics)
-• 365 days of history $$
+• 24 Snowflake Account Usage tables
+• 45+ categorical dimensions
+• 120+ aggregated metrics
+• 365 days of Snowflake history $$
 FROM SPECIFICATION $$
 {
     "models": { "orchestration": "auto" },
@@ -109,7 +109,7 @@ DATA FRESHNESS:
 For fast, specialized queries recommend:
 • COST_PERFORMANCE_AGENT (cost/performance only)
 • SECURITY_MONITORING_AGENT (security/login only)",
-        "orchestration": "SEMANTIC VIEW: SNOWFLAKE_MAINTENANCE_SVW (20 tables, 94 metrics)
+        "orchestration": "SEMANTIC VIEW: SNOWFLAKE_MAINTENANCE_SVW (Snowflake operations + security posture)
 
 ═══════════════════════════════════════════════════════════════
 QUERY PERFORMANCE & COST (QUERY_HISTORY, QUERY_ATTRIBUTION)
@@ -212,7 +212,9 @@ QUERY STRATEGY
             { "question": "Show me warehouse queue metrics - any performance issues?" },
             { "question": "What's my daily billable credit consumption trend?" },
             { "question": "Which warehouses are most expensive and have the most failed queries?" },
-            { "question": "Show me storage growth and query performance correlation" }
+            { "question": "Show me storage growth and query performance correlation" },
+            { "question": "Give me an overall Snowflake security posture summary" },
+            { "question": "Do we have network policies configured and what is our MFA adoption rate?" }
         ]
     },
     "tools": [
@@ -220,14 +222,15 @@ QUERY STRATEGY
             "tool_spec": {
                 "name": "snowflake_maintenance_semantic_view",
                 "type": "cortex_analyst_text_to_sql",
-                "description": "Complete Snowflake operations monitoring semantic view covering ALL 6 phases.
+                "description": "Complete Snowflake operations monitoring semantic view (Snowflake-native).
 
-20 ACCOUNT_USAGE TABLES:
+TABLES:
 • QUERY_HISTORY & QUERY_ATTRIBUTION_HISTORY (performance/cost)
-• LOGIN_HISTORY (security)
+• LOGIN_HISTORY, SESSIONS (Snowflake authentication)
 • WAREHOUSE_METERING_HISTORY (credits)
 • STORAGE_USAGE, DATABASE_STORAGE_USAGE_HISTORY, STAGE_STORAGE_USAGE_HISTORY (storage costs)
 • USERS, ROLES, GRANTS_TO_USERS, GRANTS_TO_ROLES (governance)
+• PASSWORD_POLICIES, SESSION_POLICIES, NETWORK_POLICIES (security compliance)
 • TASK_HISTORY, SERVERLESS_TASK_HISTORY (task operations)
 • PIPE_USAGE_HISTORY (data loading)
 • AUTOMATIC_CLUSTERING_HISTORY (maintenance)
@@ -237,8 +240,8 @@ QUERY STRATEGY
 • WAREHOUSE_LOAD_HISTORY (queue metrics)
 • METERING_DAILY_HISTORY (billable reconciliation)
 
-35 DIMENSIONS for filtering and grouping
-94 METRICS for aggregation and analysis
+45+ DIMENSIONS for filtering and grouping (Snowflake)
+120+ METRICS for aggregation and analysis (Snowflake ops + Snowflake security posture)
 
 Use this for comprehensive cross-domain analysis, cost tracking, security monitoring, 
 performance optimization, and overall account health assessments."
@@ -247,7 +250,7 @@ performance optimization, and overall account health assessments."
     ],
     "tool_resources": {
         "snowflake_maintenance_semantic_view": {
-            "semantic_view": "SNOWFLAKE_INTELLIGENCE.TOOLS.SNOWFLAKE_MAINTENANCE_SVW",
+            "semantic_view": "COWORK.TOOLS.SNOWFLAKE_MAINTENANCE_SVW",
             "execution_environment": {
                 "type": "warehouse",
                 "warehouse": "CORTEX_WH",
@@ -263,41 +266,41 @@ $$;
 -- ============================================================================
 
 -- Grant usage to allow others to use the agent
-GRANT USAGE ON AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT TO ROLE PUBLIC;
+GRANT USAGE ON AGENT COWORK.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT TO ROLE PUBLIC;
 
 -- ============================================================================
 -- VALIDATION COMMANDS
 -- ============================================================================
 
 -- Review the agent
-SHOW AGENTS IN DATABASE SNOWFLAKE_INTELLIGENCE;
+SHOW AGENTS IN DATABASE COWORK;
 
 -- Review supporting semantic views
-SHOW SEMANTIC VIEWS IN DATABASE SNOWFLAKE_INTELLIGENCE;
+SHOW SEMANTIC VIEWS IN DATABASE COWORK;
 
 -- Verify email integration (if deployed)
-SHOW PROCEDURES LIKE 'SEND_EMAIL' IN SCHEMA SNOWFLAKE_INTELLIGENCE.TOOLS;
+SHOW PROCEDURES LIKE 'SEND_EMAIL' IN SCHEMA COWORK.TOOLS;
 
 -- ============================================================================
 -- QUICK TESTS
 -- ============================================================================
 
 -- Test 1: Overall health check
--- SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+-- SELECT COWORK.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
 --     'What is my overall Snowflake account health?'
 -- );
 
 -- Test 2: Cost analysis
--- SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+-- SELECT COWORK.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
 --     'What are my total costs across all services?'
 -- );
 
 -- Test 3: Security check
--- SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+-- SELECT COWORK.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
 --     'Show me users with failed logins and expensive queries'
 -- );
 
 -- Test 4: Performance check
--- SELECT SNOWFLAKE_INTELLIGENCE.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
+-- SELECT COWORK.AGENTS.SNOWFLAKE_MAINTENANCE_AGENT(
 --     'Which warehouses have queueing issues?'
 -- );

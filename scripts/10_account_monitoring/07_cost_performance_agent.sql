@@ -2,9 +2,9 @@
 -- Specialized agent for query optimization, cost analysis, and warehouse performance
 
 USE ROLE cortex_role;
-USE SNOWFLAKE_INTELLIGENCE.AGENTS;
+USE COWORK.AGENTS;
 
-CREATE OR REPLACE AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.COST_PERFORMANCE_AGENT
+CREATE OR REPLACE AGENT COWORK.AGENTS.COST_PERFORMANCE_AGENT
 WITH PROFILE='{ "display_name": "Cost & Performance Analyst" }'
     COMMENT=$$ I am your Snowflake Cost and Performance Optimization Assistant, designed to help you:
 
@@ -110,7 +110,7 @@ Use this tool for:
     ],
     "tool_resources": {
         "cost_performance_semantic_view": {
-            "semantic_view": "SNOWFLAKE_INTELLIGENCE.TOOLS.COST_PERFORMANCE_SVW",
+            "semantic_view": "COWORK.TOOLS.COST_PERFORMANCE_SVW",
             "execution_environment": {
                 "type": "warehouse",
                 "warehouse": "CORTEX_WH",
@@ -121,4 +121,4 @@ Use this tool for:
 }
 $$;
 
-GRANT USAGE ON AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.COST_PERFORMANCE_AGENT TO ROLE PUBLIC;
+GRANT USAGE ON AGENT COWORK.AGENTS.COST_PERFORMANCE_AGENT TO ROLE PUBLIC;

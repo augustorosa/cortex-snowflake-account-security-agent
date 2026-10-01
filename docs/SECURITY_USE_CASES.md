@@ -545,15 +545,15 @@ Content:
 ## 🛠️ Configuration Files
 
 ### Key Scripts:
-1. **`2.1 ENHANCED_SECURITY_DIAGNOSTICS_SVW.sql`** - Enhanced semantic view with all security tables
+1. **`05_enhanced_security_diagnostics_svw.sql`** - Enhanced semantic view with all security tables
 2. **`5.1 ENHANCED_SECURITY_AGENT.sql`** - AI agent configured for security monitoring
-3. **`3. email integration.sql`** - Email notification setup
+3. **`02_email_integration.sql`** - Email notification setup
 
 ### Quick Start:
 ```sql
 -- 1. Deploy enhanced semantic view
 USE ROLE cortex_role;
-@scripts/2.1 ENHANCED_SECURITY_DIAGNOSTICS_SVW.sql
+@scripts/10_account_monitoring/05_enhanced_security_diagnostics_svw.sql
 
 -- 2. Deploy enhanced security agent  
 @scripts/5.1 ENHANCED_SECURITY_AGENT.sql

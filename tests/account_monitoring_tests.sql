@@ -4,7 +4,7 @@
 -- Tests Generalist Agent + 2 Specialist Agents
 -- 
 -- USAGE:
---   snowsql -f scripts/TEST_ALL_PHASES.sql -o output_format=table
+--   snowsql -f tests/account_monitoring_tests.sql -o output_format=table
 --
 -- AGENTS TESTED:
 --   1. SNOWFLAKE_MAINTENANCE_AGENT (Generalist - Complete Coverage)
@@ -13,7 +13,7 @@
 -- ============================================================================
 
 USE ROLE cortex_role;
-USE SNOWFLAKE_INTELLIGENCE.TOOLS;
+USE COWORK.TOOLS;
 
 -- Set session for consistent results
 ALTER SESSION SET TIMEZONE = 'UTC';
@@ -360,11 +360,11 @@ SELECT '════════════════════════
 
 -- Test S.1: Verify semantic view exists
 SELECT 'Test S.1: Semantic View Existence' AS test_name;
-SHOW SEMANTIC VIEWS LIKE 'SNOWFLAKE_MAINTENANCE_SVW' IN SCHEMA SNOWFLAKE_INTELLIGENCE.TOOLS;
+SHOW SEMANTIC VIEWS LIKE 'SNOWFLAKE_MAINTENANCE_SVW' IN SCHEMA COWORK.TOOLS;
 
 -- Test S.2: Verify all three agents exist
 SELECT 'Test S.2: Agent Existence Check' AS test_name;
-SHOW AGENTS LIKE '%AGENT%' IN SCHEMA SNOWFLAKE_INTELLIGENCE.AGENTS;
+SHOW AGENTS LIKE '%AGENT%' IN SCHEMA COWORK.AGENTS;
 
 SELECT '═══════════════════════════════════════════════════════════════' AS test_section;
 SELECT '✅ ALL AUTOMATED TESTS COMPLETE' AS status;

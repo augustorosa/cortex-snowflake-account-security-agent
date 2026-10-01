@@ -1,14 +1,16 @@
 -- ============================================================================
--- SECURITY MONITORING AGENT - PHASE 7 ENHANCED
+-- SECURITY MONITORING AGENT - PHASE 7 ENHANCED (LEGACY)
 -- ============================================================================
+-- Prefer `scripts/20_security/11_security_monitoring_agent.sql`, which keeps the
+-- Snowflake Maintenance agent Snowflake-only and provides expanded security scope.
 -- Comprehensive security agent with sessions, policies, and MFA tracking
 -- Enhanced with: SESSIONS, USERS, PASSWORD_POLICIES, SESSION_POLICIES, NETWORK_POLICIES
 -- ============================================================================
 
 USE ROLE cortex_role;
-USE SNOWFLAKE_INTELLIGENCE.AGENTS;
+USE COWORK.AGENTS;
 
-CREATE OR REPLACE AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.SECURITY_MONITORING_AGENT
+CREATE OR REPLACE AGENT COWORK.AGENTS.SECURITY_MONITORING_AGENT
 WITH PROFILE='{ "display_name": "Security Monitoring Analyst (Phase 7)" }'
     COMMENT=$$ 🔐 PHASE 7 ENHANCED SECURITY MONITORING AGENT
 
@@ -211,7 +213,7 @@ Use this to QUERY actual security data, analyze risks, and provide actionable in
     ],
     "tool_resources": {
         "security_monitoring_semantic_view": {
-            "semantic_view": "SNOWFLAKE_INTELLIGENCE.TOOLS.SECURITY_MONITORING_SVW",
+            "semantic_view": "COWORK.TOOLS.SECURITY_MONITORING_SVW",
             "execution_environment": {
                 "type": "warehouse",
                 "warehouse": "CORTEX_WH",
@@ -219,7 +221,7 @@ Use this to QUERY actual security data, analyze risks, and provide actionable in
             }
         },
         "security_alert_email": {
-            "identifier": "SNOWFLAKE_INTELLIGENCE.TOOLS.SEND_EMAIL",
+            "identifier": "COWORK.TOOLS.SEND_EMAIL",
             "name": "SEND_EMAIL(VARCHAR, VARCHAR, VARCHAR)",
             "type": "procedure",
             "execution_environment": {
@@ -232,4 +234,4 @@ Use this to QUERY actual security data, analyze risks, and provide actionable in
 }
 $$;
 
-GRANT USAGE ON AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.SECURITY_MONITORING_AGENT TO ROLE PUBLIC;
+GRANT USAGE ON AGENT COWORK.AGENTS.SECURITY_MONITORING_AGENT TO ROLE PUBLIC;

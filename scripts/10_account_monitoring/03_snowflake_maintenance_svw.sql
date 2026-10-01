@@ -18,16 +18,16 @@
 -- ============================================================================
 
 USE ROLE cortex_role;
-USE SNOWFLAKE_INTELLIGENCE.TOOLS;
+USE COWORK.TOOLS;
 
 -- ============================================================================
--- COMPREHENSIVE SNOWFLAKE OPERATIONS SEMANTIC VIEW (PHASE 7 ENHANCED)
+-- COMPREHENSIVE SNOWFLAKE OPERATIONS SEMANTIC VIEW (SNOWFLAKE-ONLY, PHASE 7)
 -- ============================================================================
--- Includes: 24 ACCOUNT_USAGE tables, 45 dimensions, 122 metrics
+-- Includes: 24 ACCOUNT_USAGE tables, 50+ dimensions, 120+ metrics
 -- 
 -- Query & Performance: QUERY_HISTORY, QUERY_ATTRIBUTION_HISTORY
--- Security: LOGIN_HISTORY, SESSIONS (NEW), USERS
--- Security Policies: PASSWORD_POLICIES (NEW), SESSION_POLICIES (NEW), NETWORK_POLICIES (NEW)
+-- Security: LOGIN_HISTORY, SESSIONS, USERS
+-- Security Policies: PASSWORD_POLICIES, SESSION_POLICIES, NETWORK_POLICIES
 -- Cost & Storage: WAREHOUSE_METERING, STORAGE_USAGE, DB/STAGE_STORAGE
 -- Governance: ROLES, GRANTS
 -- Operations: TASK_HISTORY, SERVERLESS_TASK_HISTORY
@@ -35,7 +35,7 @@ USE SNOWFLAKE_INTELLIGENCE.TOOLS;
 -- ============================================================================
 
 CREATE OR REPLACE SEMANTIC VIEW 
-    SNOWFLAKE_INTELLIGENCE.TOOLS.SNOWFLAKE_MAINTENANCE_SVW
+    COWORK.TOOLS.SNOWFLAKE_MAINTENANCE_SVW
 TABLES (
   qh AS SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY,
   qa AS SNOWFLAKE.ACCOUNT_USAGE.QUERY_ATTRIBUTION_HISTORY,

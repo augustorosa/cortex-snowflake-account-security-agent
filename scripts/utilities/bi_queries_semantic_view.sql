@@ -10,7 +10,7 @@
 -- ============================================================================
 
 USE ROLE cortex_role;
-USE SNOWFLAKE_INTELLIGENCE.TOOLS;
+USE COWORK.TOOLS;
 
 -- ============================================================================
 -- 1. QUERY PERFORMANCE & COST ANALYSIS
